@@ -1,8 +1,9 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { BookOpenText, Compass, Map as MapIcon, Sparkles, HelpCircle, Bookmark, Search, Hourglass, Sparkle } from "lucide-react";
+import { BookOpenText, Compass, Map as MapIcon, Sparkles, HelpCircle, Bookmark, Search, Hourglass, Sparkle, Moon } from "lucide-react";
 import { useState } from "react";
 
 const links = [
+  { to: "/livre-du-soir", label: "Livre du soir", icon: Moon },
   { to: "/voyage", label: "Voyage", icon: Hourglass },
   { to: "/frise", label: "Frise", icon: Compass },
   { to: "/carte", label: "Carte", icon: MapIcon },
@@ -31,19 +32,19 @@ export default function Navbar() {
           </div>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-1 ml-4">
+        <nav className="hidden lg:flex items-center gap-1 ml-2">
           {links.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
               data-testid={`nav-${to.slice(1)}`}
               className={({ isActive }) =>
-                `flex items-center gap-2 px-3 py-2 text-sm font-ui rounded-sm transition-colors duration-300 ${
+                `flex items-center gap-1.5 px-2.5 py-2 text-[0.82rem] font-ui rounded-sm transition-colors duration-300 whitespace-nowrap ${
                   isActive ? "text-copper-light" : "text-parchment/70 hover:text-copper-light"
                 }`
               }
             >
-              <Icon className="w-4 h-4" strokeWidth={1.5} />
+              <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
               {label}
             </NavLink>
           ))}

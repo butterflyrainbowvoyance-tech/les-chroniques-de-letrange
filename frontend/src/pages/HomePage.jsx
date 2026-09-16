@@ -1,16 +1,19 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Sparkles, Compass, Map as MapIcon, HelpCircle, Hourglass } from "lucide-react";
-import { fetchUniverses, fetchStories } from "@/lib/api";
+import { ArrowUpRight, Sparkles, Compass, Map as MapIcon, HelpCircle, Hourglass, Moon } from "lucide-react";
+import { fetchUniverses, fetchStories, fetchLivreDuSoir } from "@/lib/api";
 import StoryCard from "@/components/StoryCard";
+import StatusBadge from "@/components/StatusBadge";
 
 export default function HomePage() {
   const [universes, setUniverses] = useState([]);
   const [featured, setFeatured] = useState([]);
+  const [nightly, setNightly] = useState(null);
 
   useEffect(() => {
     fetchUniverses().then(setUniverses).catch(() => {});
     fetchStories({ limit: 6 }).then(setFeatured).catch(() => {});
+    fetchLivreDuSoir().then(setNightly).catch(() => {});
   }, []);
 
   return (
@@ -84,6 +87,35 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* LIVRE DU SOIR */}
+      {nightly && (
+        <section className="mx-auto max-w-7xl px-6 lg:px-10 pt-20" data-testid="home-livre-du-soir">
+          <Link to="/livre-du-soir" className="group block border border-copper/25 bg-[#0F1528]/60 copper-frame hover-lift overflow-hidden grid md:grid-cols-[1fr_1.2fr]">
+            {nightly.story.hero_image && (
+              <div className="relative aspect-[4/3] md:aspect-auto overflow-hidden">
+                <img src={nightly.story.hero_image} alt="" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0F1528]/60" />
+                <div className="absolute top-6 left-6 inline-flex items-center gap-2 px-3 py-1 border border-copper text-copper text-xs font-ui uppercase tracking-[0.2em] rounded-full bg-[#050814]/70 backdrop-blur">
+                  <Moon className="w-3 h-3" strokeWidth={2} /> Le livre du soir
+                </div>
+              </div>
+            )}
+            <div className="p-10 flex flex-col justify-center">
+              <div className="overline mb-3">{nightly.greeting}</div>
+              <StatusBadge status={nightly.story.status_key} size="sm" />
+              <h3 className="mt-4 font-heading text-3xl sm:text-4xl text-parchment leading-tight group-hover:text-copper-light transition-colors">
+                {nightly.story.title}
+              </h3>
+              {nightly.story.subtitle && <p className="mt-2 italic text-copper-muted">{nightly.story.subtitle}</p>}
+              <p className="mt-5 text-parchment/75 leading-relaxed line-clamp-3">{nightly.story.excerpt}</p>
+              <div className="mt-6 inline-flex items-center gap-2 text-copper text-sm font-ui uppercase tracking-widest">
+                Ouvrir la chronique du soir <ArrowUpRight className="w-4 h-4" strokeWidth={1.5} />
+              </div>
+            </div>
+          </Link>
+        </section>
+      )}
 
       {/* UNIVERSES BENTO */}
       <section className="mx-auto max-w-7xl px-6 lg:px-10 py-24" data-testid="universes-section">

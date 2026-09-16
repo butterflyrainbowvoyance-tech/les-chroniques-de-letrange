@@ -17,6 +17,7 @@ import VoyagePage from "@/pages/VoyagePage";
 import VoyageEraPage from "@/pages/VoyageEraPage";
 import OriginesPage from "@/pages/OriginesPage";
 import OrigineDetailPage from "@/pages/OrigineDetailPage";
+import LivreDuSoirPage from "@/pages/LivreDuSoirPage";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
               <Route path="/voyage/:eraId" element={<VoyageEraPage />} />
               <Route path="/origine" element={<OriginesPage />} />
               <Route path="/origine/:origineId" element={<OrigineDetailPage />} />
+              <Route path="/livre-du-soir" element={<LivreDuSoirPage />} />
             </Routes>
           </main>
           <Footer />

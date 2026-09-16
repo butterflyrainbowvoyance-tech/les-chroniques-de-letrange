@@ -20,3 +20,5 @@ export const fetchPanoramas = () => api.get("/panoramas").then(r => r.data);
 export const fetchPanorama = (id) => api.get(`/panoramas/${id}`).then(r => r.data);
 export const fetchOrigines = () => api.get("/origines").then(r => r.data);
 export const fetchOrigine = (id) => api.get(`/origines/${id}`).then(r => r.data);
+export const fetchLivreDuSoir = () => api.get("/livre-du-soir").then(r => r.data);
+export const fetchLivreDuSoirHistory = (days = 7) => api.get("/livre-du-soir/history", { params: { days } }).then(r => r.data);

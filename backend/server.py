@@ -310,6 +310,55 @@ async def get_origine(origine_id: str):
     raise HTTPException(404, "Origine introuvable")
 
 
+# ============ LIVRE DU SOIR ============
+from datetime import datetime, timezone, timedelta
+
+def _pick_for_date(d: datetime) -> dict:
+    """Deterministic pick based on ordinal day."""
+    ordered = sorted(STORIES, key=lambda s: s["id"])
+    idx = d.toordinal() % len(ordered)
+    return ordered[idx]
+
+
+@api_router.get("/livre-du-soir")
+async def livre_du_soir():
+    today = datetime.now(timezone.utc).date()
+    s = _pick_for_date(datetime.fromordinal(today.toordinal()))
+    return {
+        "date": today.isoformat(),
+        "greeting": _greeting_for(today),
+        "story": public_story(s, full=True)
+    }
+
+
+@api_router.get("/livre-du-soir/history")
+async def livre_du_soir_history(days: int = 7):
+    today = datetime.now(timezone.utc).date()
+    out = []
+    for i in range(days):
+        d = today - timedelta(days=i)
+        s = _pick_for_date(datetime.fromordinal(d.toordinal()))
+        out.append({
+            "date": d.isoformat(),
+            "story": summarize_story(s)
+        })
+    return out
+
+
+_GREETINGS = [
+    "Ce soir, on ouvre…",
+    "La chronique de la nuit :",
+    "Une histoire pour votre veillée :",
+    "Ce que la bibliothèque vous propose ce soir :",
+    "L'entrée du soir dans nos archives :",
+    "Une lecture pour la nuit qui vient :",
+    "La page qu'on tourne ensemble ce soir :",
+]
+
+def _greeting_for(d) -> str:
+    return _GREETINGS[d.toordinal() % len(_GREETINGS)]
+
+
 # ============ AI ============
 class GenerateRequest(BaseModel):
     prompt: str
