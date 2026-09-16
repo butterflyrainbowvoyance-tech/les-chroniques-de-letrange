@@ -1,0 +1,142 @@
+{
+  "theme": {
+    "name": "Bibliothèque secrète nocturne",
+    "description": "An immersive, elegant, and slightly mysterious web application acting as an interactive encyclopedia for spirituality, mysticism, occultism, and legends. Avoids kitsch 'TikTok witch' aesthetics, focusing instead on the atmosphere of entering a huge, secret, dimly-lit victorian library. Think deep night blue, discreet copper gilding, elegant serif fonts, and paper/velvet textures.",
+    "mode": "dark"
+  },
+  "typography": {
+    "font_families": {
+      "headings": "'Cormorant Garamond', serif",
+      "body": "'EB Garamond', serif",
+      "ui": "'Manrope', sans-serif"
+    },
+    "hierarchy": {
+      "h1": "text-5xl sm:text-6xl tracking-tighter font-light",
+      "h2": "text-4xl sm:text-5xl tracking-tight font-normal",
+      "h3": "text-2xl sm:text-3xl font-medium",
+      "body": "text-lg leading-relaxed text-opacity-90",
+      "labels": "text-xs uppercase tracking-[0.2em] font-ui"
+    },
+    "rules": [
+      "Use Cormorant Garamond for all primary headings, emphasizing an editorial, ancient book feel.",
+      "Use EB Garamond for long-form narrative text to ensure high legibility while maintaining the historical theme.",
+      "Use a modern clean sans-serif (like Manrope or Inter) for small UI elements like buttons, badges, and tiny labels for modern usability.",
+      "Headings should have tight letter spacing, and small overlines should be widely tracked."
+    ]
+  },
+  "colors": {
+    "palette": {
+      "background_base": "#050814",
+      "background_surface": "#0A0F1D",
+      "background_card": "#0F1528",
+      "copper_primary": "#C69C6D",
+      "copper_hover": "#DDB88C",
+      "copper_muted": "#8A6D4C",
+      "text_primary": "#E6E1D6",
+      "text_secondary": "#A19C91",
+      "status_badges": {
+        "fait_historique": "#4A6B5D",
+        "tradition": "#6B5D4A",
+        "legende": "#4A5D6B",
+        "hypothese": "#6B4A5D"
+      }
+    },
+    "tailwind_vars_dark": {
+      "--background": "226 60% 5%",
+      "--foreground": "42 20% 87%",
+      "--card": "226 46% 11%",
+      "--card-foreground": "42 20% 87%",
+      "--popover": "226 46% 11%",
+      "--popover-foreground": "42 20% 87%",
+      "--primary": "32 45% 60%",
+      "--primary-foreground": "226 60% 5%",
+      "--secondary": "226 30% 18%",
+      "--secondary-foreground": "42 20% 87%",
+      "--muted": "226 30% 18%",
+      "--muted-foreground": "40 10% 60%",
+      "--border": "32 30% 30%",
+      "--input": "226 30% 18%",
+      "--ring": "32 45% 60%"
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Apply a very subtle noise/grain texture overlay (using a pseudo-element or SVG filter) to the main background to simulate old paper/velvet without overwhelming the content.",
+    "borders": "Use delicate 1px solid borders with low opacity copper (--primary) to divide sections and frame cards, mimicking book panels.",
+    "shadows": "Deep, ambient drop-shadows rather than harsh box-shadows. Use soft glow effects for interactive elements.",
+    "overlays": "Avoid completely transparent backgrounds for dropdowns or modals. Use crystal glassmorphism: backdrop-blur-xl bg-[#050814]/80 with a 1px copper border.",
+    "glassmorphism": "Only use for sticky navigation and modals to ensure text readability."
+  },
+  "layouts": {
+    "general_spacing": "Use generous padding (p-8, p-12, p-16) to create 'breathing room' typical of high-end editorial design.",
+    "grid_system": "Use The 'Bento' Grid Protocol for the 7 universes navigation. Asymmetrical grid layouts (e.g., col-span-full for hero, col-span-4 for smaller cards) to prevent monotonous layouts.",
+    "navigation": "A persistent top navigation bar featuring the logo, key links (Universes, Timeline, Map), and a 'Library/Favorites' icon. Must use glassmorphism if sticky.",
+    "hero_section": "Immersive 'Secret Library' entrance. Large typography, background image of a dark library with an elegant vignette overlay (bg-black/60 to transparent), and a prominent CTA 'Entrer dans la bibliothèque'."
+  },
+  "motion": {
+    "scroll": "Smooth scrolling via Lenis is highly recommended to give the site momentum and weight.",
+    "transitions": "Use slow, elegant fade-ins and slight vertical translations for entrance animations (e.g., opacity 0 to 1, translate-y-4 to 0 over 0.8s).",
+    "interactions": "Hover states on cards should have a subtle lift (-translate-y-1) and a slight increase in border opacity or inner glow. No erratic or bouncing animations."
+  },
+  "component_rules": {
+    "badges": "Used to denote story status (Fait historique, Tradition, etc.). Pill-shaped, subtle background color, crisp text. Font: Manrope.",
+    "buttons": "Elegant, either solid copper with dark text or outlined copper with copper text. Use sharp edges or slight rounding (rounded-sm) rather than fully pill-shaped.",
+    "cards": "For articles/stories: 1px border of muted copper, background is background_card, padding p-6. Never use harsh white backgrounds. Add a subtle hover state.",
+    "timeline": "A vertical or horizontal scrolling timeline for historical events. Use Framer Motion to reveal items as they enter the viewport."
+  },
+  "media": {
+    "image_urls": {
+      "hero_library": {
+        "url": "https://images.pexels.com/photos/16811482/pexels-photo-16811482.jpeg",
+        "description": "Moody interior shot of a dark library with a spiral staircase, used as the landing page hero background."
+      },
+      "category_esotericism": {
+        "url": "https://images.unsplash.com/photo-1535905557558-afc4877a26fc",
+        "description": "Antique books and a wooden ladder, suitable for the history of esotericism section."
+      },
+      "category_mysteries": {
+        "url": "https://images.unsplash.com/photo-1786341540187-4ee121cecc67",
+        "description": "Geometric copper deer skull in a glass dome, suitable for mysteries and curiosities."
+      },
+      "interactive_map": {
+        "url": "https://images.pexels.com/photos/30247330/pexels-photo-30247330.jpeg",
+        "description": "Detailed view of an antique world map, can be used as a background for the map section."
+      },
+      "category_legends": {
+        "url": "https://images.pexels.com/photos/37246081/pexels-photo-37246081.jpeg",
+        "description": "Vintage display of curiosities, representing myths and legends."
+      }
+    },
+    "rules": "Never use placeholder images. If more images are needed, use these provided URLs as backgrounds with heavy vignette (bg-black/50) to ensure text contrast."
+  },
+  "3d_libraries": {
+    "particles": "Consider using TSParticles for a very subtle 'floating dust' effect in the hero section to emphasize the ancient library atmosphere. Keep opacity very low (e.g., 0.1)."
+  },
+  "accessibility": {
+    "contrast": "Ensure all copper/gold text against the dark blue background meets at least WCAG AA standards (4.5:1).",
+    "aria": "Add aria-labels to the interactive map, timeline nodes, and the 'Tell me something strange' random button.",
+    "data_testid": "All interactive and key informational elements MUST include a `data-testid` attribute (e.g., data-testid='random-story-button')."
+  },
+  "instructions_to_main_agent": {
+    "setup": "Update /app/frontend/tailwind.config.js to include the custom font families and the new colors. Update /app/frontend/src/index.css with the provided CSS variables under the dark theme.",
+    "fonts": "Import Cormorant Garamond, EB Garamond, and Manrope from Google Fonts in index.css or index.html.",
+    "icons": "Use 'lucide-react' for all icons. Opt for thin, elegant strokes (strokeWidth={1.5}).",
+    "pages_to_build": "1. Home (Landing with Hero, 7 Universes Grid), 2. Story Detail Page (with Status Badge and text), 3. Interactive Timeline/Map section, 4. 'Tell me something strange' modal/page.",
+    "features": "Implement the 'Vrai, croyance ou légende ?' quiz component and a 'Favoris' state."
+  },
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. In frontend design, this creates what users call the 'AI slop' aesthetic. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition. Eg: `transition: all`. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms.",
+    "You MUST NOT center align the app container, ie do not add `.App { text-align: center; }` in the css file. This disrupts the human natural reading flow of text.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style.",
+    "NEVER: use AI assistant Emoji characters like \ud83e\udd16\ud83e\udde0\ud83d\udcad\ud83d\udca1\udd2e\ud83c\udfaf etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Prioritize using pre-existing components from src/components/ui when applicable.",
+    "Use `sonner` for toasts. Sonner component are located in `/app/src/components/ui/sonner.tsx`."
+  ]
+}

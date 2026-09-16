@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 226 60% 5%;
+        --foreground: 42 20% 87%;
+        --card: 226 46% 11%;
+        --card-foreground: 42 20% 87%;
+        --popover: 226 46% 11%;
+        --popover-foreground: 42 20% 87%;
+        --primary: 32 45% 60%;
+        --primary-foreground: 226 60% 5%;
+        --secondary: 226 30% 18%;
+        --secondary-foreground: 42 20% 87%;
+        --muted: 226 30% 18%;
+        --muted-foreground: 40 10% 60%;
+        --accent: 32 40% 25%;
+        --accent-foreground: 42 20% 87%;
+        --destructive: 0 62% 40%;
+        --destructive-foreground: 42 20% 87%;
+        --border: 32 30% 30%;
+        --input: 226 30% 18%;
+        --ring: 32 45% 60%;
+        --radius: 0.25rem;
+    }
+}
+
+@layer base {
+    * {
+        border-color: hsl(var(--border) / 0.35);
+    }
+    html, body {
+        margin: 0;
+        background: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-family: 'EB Garamond', serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection {
+        background: #C69C6D;
+        color: #050814;
+    }
+}
+
+/* Grain / paper texture overlay */
+.bg-grain::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.08;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.divider-copper {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #8A6D4C, transparent);
+}
+
+.copper-frame {
+    box-shadow:
+        inset 0 0 0 1px rgba(198, 156, 109, 0.25),
+        0 30px 60px -30px rgba(0, 0, 0, 0.9);
+}
+
+.text-copper { color: #C69C6D; }
+.text-copper-light { color: #DDB88C; }
+.text-copper-muted { color: #8A6D4C; }
+
+.overline {
+    font-family: 'Manrope', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #8A6D4C;
+}
+
+.narrative p {
+    margin-bottom: 1.4em;
+    font-size: 1.15rem;
+    line-height: 1.85;
+    color: #D6D1C6;
+}
+.narrative p strong { color: #DDB88C; font-weight: 500; }
+.narrative p em { color: #E6E1D6; font-style: italic; }
+
+.hover-lift {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.3s ease,
+                background-color 0.3s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-4px);
+    border-color: rgba(198, 156, 109, 0.5);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #050814; }
+::-webkit-scrollbar-thumb { background: #2a2438; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #8A6D4C; }
+
+[data-debug-wrapper="true"] { display: contents !important; }
