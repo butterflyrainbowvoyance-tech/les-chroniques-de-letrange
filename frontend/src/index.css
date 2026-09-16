@@ -102,6 +102,38 @@
     border-color: rgba(198, 156, 109, 0.5);
 }
 
+/* Marquee (categories ribbon) */
+.marquee {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+            mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 42s linear infinite;
+}
+.marquee-group {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+.marquee-item {
+    display: inline-flex;
+    align-items: center;
+    padding-right: 0;
+    white-space: nowrap;
+}
+@keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #050814; }

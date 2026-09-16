@@ -35,8 +35,8 @@ export default function HomePage() {
               de l'<em className="text-copper-light not-italic">Étrange</em>.
             </h1>
             <p className="mt-10 text-lg lg:text-xl text-parchment/75 max-w-2xl leading-relaxed">
-              Une exploration honnête de l'histoire de la spiritualité, du mysticisme,
-              des arts divinatoires et des grandes légendes.
+              Une exploration documentée de l'histoire de la spiritualité, du mysticisme,
+              de l'occultisme, des arts divinatoires et des grandes légendes.
               Ici, on distingue toujours <span className="text-copper-light">ce que l'on sait</span>,{" "}
               <span className="text-copper-light">ce que l'on croit</span>,{" "}
               <span className="text-copper-light">ce que l'on raconte</span>.
@@ -58,8 +58,33 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl px-6 lg:px-10 py-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-ui uppercase tracking-widest text-copper-muted">
             <SignatureLink to="/frise" icon={Compass} label="Frise chronologique" />
             <SignatureLink to="/carte" icon={MapIcon} label="Carte des légendes" />
-            <SignatureLink to="/etrange" icon={Sparkles} label="Récits aléatoires" />
+            <SignatureLink to="/etrange" icon={Sparkles} label="Cabinet des curiosités" />
             <SignatureLink to="/quiz" icon={HelpCircle} label="Vrai, croyance ou légende ?" />
+          </div>
+        </div>
+      </section>
+
+      {/* CATEGORIES RIBBON */}
+      <section className="relative border-y border-copper/20 bg-[#050814] overflow-hidden" data-testid="categories-ribbon" aria-label="Catégories">
+        <div className="marquee py-5 font-ui text-xs sm:text-sm uppercase tracking-[0.35em] text-copper">
+          <div className="marquee-track">
+            {[0, 1].map(k => (
+              <div key={k} className="marquee-group" aria-hidden={k === 1}>
+                {[
+                  "Arts divinatoires",
+                  "Occultisme",
+                  "Mysticisme",
+                  "Pierres & Couronnes",
+                  "Personnages",
+                  "Contes & Légendes",
+                ].map((label, i) => (
+                  <span key={`${k}-${i}`} className="marquee-item">
+                    <span>{label}</span>
+                    <span className="text-copper-muted mx-8">✦</span>
+                  </span>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </section>
