@@ -162,3 +162,35 @@ def test_quiz_balanced_pool():
 def test_story_not_found():
     r = requests.get(f"{API}/stories/does-not-exist-xyz")
     assert r.status_code == 404
+
+
+
+# ---------- Origines (À l'origine de…) ----------
+def test_origines_list_six():
+    r = requests.get(f"{API}/origines")
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data) == 6, f"expected 6 origines, got {len(data)}"
+    required = {"id", "symbol", "hook", "one_liner", "hero_image", "tags"}
+    for o in data:
+        assert required.issubset(o.keys()), f"missing keys in {o.get('id')}: have {o.keys()}"
+        assert isinstance(o["tags"], list)
+
+
+def test_origine_sel_renverse_full():
+    r = requests.get(f"{API}/origines/sel-renverse")
+    assert r.status_code == 200
+    data = r.json()
+    sections = data.get("sections") or []
+    assert len(sections) == 4, f"expected 4 sections got {len(sections)}"
+    for sec in sections:
+        assert sec.get("title")
+        assert isinstance(sec.get("paragraphs"), list) and len(sec["paragraphs"]) > 0
+    sources = data.get("sources") or []
+    assert len(sources) == 3, f"expected 3 sources got {len(sources)}"
+    assert isinstance(data.get("tags"), list) and len(data["tags"]) > 0
+
+
+def test_origine_unknown_404():
+    r = requests.get(f"{API}/origines/does-not-exist")
+    assert r.status_code == 404
