@@ -194,3 +194,38 @@ def test_origine_sel_renverse_full():
 def test_origine_unknown_404():
     r = requests.get(f"{API}/origines/does-not-exist")
     assert r.status_code == 404
+
+
+# ---------- Livre du soir ----------
+def test_livre_du_soir_today():
+    r = requests.get(f"{API}/livre-du-soir")
+    assert r.status_code == 200
+    data = r.json()
+    assert "date" in data and "greeting" in data and "story" in data
+    assert isinstance(data["greeting"], str) and len(data["greeting"]) > 0
+    s = data["story"]
+    assert "id" in s and "title" in s and "status_key" in s
+    # full: has content or sections + sources typical
+    assert ("content" in s) or ("sections" in s)
+
+
+def test_livre_du_soir_deterministic():
+    r1 = requests.get(f"{API}/livre-du-soir").json()
+    r2 = requests.get(f"{API}/livre-du-soir").json()
+    assert r1["story"]["id"] == r2["story"]["id"]
+    assert r1["date"] == r2["date"]
+    assert r1["greeting"] == r2["greeting"]
+
+
+def test_livre_du_soir_history_7():
+    r = requests.get(f"{API}/livre-du-soir/history", params={"days": 7})
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data) == 7
+    dates = [e["date"] for e in data]
+    assert dates == sorted(dates, reverse=True)
+    today_r = requests.get(f"{API}/livre-du-soir").json()
+    assert data[0]["date"] == today_r["date"]
+    assert data[0]["story"]["id"] == today_r["story"]["id"]
+    for e in data:
+        assert "id" in e["story"] and "title" in e["story"]

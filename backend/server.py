@@ -312,6 +312,14 @@ async def get_origine(origine_id: str):
 
 # ============ LIVRE DU SOIR ============
 from datetime import datetime, timezone, timedelta
+try:
+    from zoneinfo import ZoneInfo
+    PARIS_TZ = ZoneInfo("Europe/Paris")
+except Exception:
+    PARIS_TZ = timezone.utc
+
+def _paris_today():
+    return datetime.now(PARIS_TZ).date()
 
 def _pick_for_date(d: datetime) -> dict:
     """Deterministic pick based on ordinal day."""
@@ -322,7 +330,7 @@ def _pick_for_date(d: datetime) -> dict:
 
 @api_router.get("/livre-du-soir")
 async def livre_du_soir():
-    today = datetime.now(timezone.utc).date()
+    today = _paris_today()
     s = _pick_for_date(datetime.fromordinal(today.toordinal()))
     return {
         "date": today.isoformat(),
@@ -333,15 +341,12 @@ async def livre_du_soir():
 
 @api_router.get("/livre-du-soir/history")
 async def livre_du_soir_history(days: int = 7):
-    today = datetime.now(timezone.utc).date()
+    today = _paris_today()
     out = []
     for i in range(days):
         d = today - timedelta(days=i)
         s = _pick_for_date(datetime.fromordinal(d.toordinal()))
-        out.append({
-            "date": d.isoformat(),
-            "story": summarize_story(s)
-        })
+        out.append({"date": d.isoformat(), "story": summarize_story(s)})
     return out
 
 
