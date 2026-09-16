@@ -14,8 +14,8 @@ def test_root_counts():
     r = requests.get(f"{API}/")
     assert r.status_code == 200
     data = r.json()
-    assert data.get("stories") == 45, f"expected 45 stories, got {data.get('stories')}"
-    assert data.get("universes") == 10, f"expected 10 universes, got {data.get('universes')}"
+    assert data.get("stories") == 53, f"expected 53 stories, got {data.get('stories')}"
+    assert data.get("universes") == 11, f"expected 11 universes, got {data.get('universes')}"
 
 
 def test_universes_10_and_keys():
@@ -23,8 +23,8 @@ def test_universes_10_and_keys():
     assert r.status_code == 200
     data = r.json()
     ids = [u["id"] for u in data]
-    assert len(data) == 10, f"expected 10 universes, got {len(data)}: {ids}"
-    for req in ["histoire-secrete", "ils-y-croyaient", "legende-vs-archives"]:
+    assert len(data) == 11, f"expected 11 universes, got {len(data)}: {ids}"
+    for req in ["histoire-secrete", "ils-y-croyaient", "legende-vs-archives", "morts-etranges"]:
         assert req in ids, f"missing universe {req}"
     for u in data:
         assert "story_count" in u
@@ -229,3 +229,58 @@ def test_livre_du_soir_history_7():
     assert data[0]["story"]["id"] == today_r["story"]["id"]
     for e in data:
         assert "id" in e["story"] and "title" in e["story"]
+
+
+
+# ---------- Morts étranges (new universe) ----------
+def test_universe_morts_etranges_count_8():
+    r = requests.get(f"{API}/universes")
+    assert r.status_code == 200
+    me = next((u for u in r.json() if u["id"] == "morts-etranges"), None)
+    assert me is not None, "morts-etranges universe missing"
+    assert me.get("story_count") == 8, f"expected 8 stories, got {me.get('story_count')}"
+
+
+def test_morts_etranges_stories_list():
+    r = requests.get(f"{API}/stories", params={"universe": "morts-etranges"})
+    assert r.status_code == 200
+    data = r.json()
+    ids = {s["id"] for s in data}
+    expected = {
+        "mort-mozart", "mort-hendrick-jeanne-albret", "mort-poe",
+        "mort-cesare-borgia", "mort-tycho-brahe", "mort-crowley",
+        "mort-jeanne-arc", "mort-alexandre-le-grand",
+    }
+    assert expected.issubset(ids), f"missing ids: {expected - ids}"
+    assert len(data) == 8
+
+
+def test_mort_mozart_detail():
+    r = requests.get(f"{API}/stories/mort-mozart")
+    assert r.status_code == 200
+    data = r.json()
+    assert data.get("id") == "mort-mozart"
+    assert (data.get("content") or data.get("sections"))
+    assert isinstance(data.get("sources"), list) and len(data["sources"]) > 0
+    assert isinstance(data.get("tags"), list) and len(data["tags"]) > 0
+
+
+# ---------- TTS audio endpoint ----------
+def test_audio_story_mort_mozart_generates_and_caches():
+    url = f"{API}/audio/story/mort-mozart.mp3"
+    r1 = requests.get(url, timeout=60)
+    assert r1.status_code == 200, f"got {r1.status_code}: {r1.text[:200]}"
+    ct = r1.headers.get("Content-Type", "")
+    assert "audio/mpeg" in ct, f"unexpected content-type: {ct}"
+    assert len(r1.content) > 100_000, f"body too small: {len(r1.content)}"
+
+    # Second call should be served from cache (fast)
+    r2 = requests.get(url, timeout=15)
+    assert r2.status_code == 200
+    assert "audio/mpeg" in r2.headers.get("Content-Type", "")
+    assert len(r2.content) > 100_000
+
+
+def test_audio_story_unknown_404():
+    r = requests.get(f"{API}/audio/story/unknown-id-xyz.mp3")
+    assert r.status_code == 404
