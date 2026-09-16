@@ -14,6 +14,7 @@ from typing import Optional
 from stories_data import STORIES as BASE_STORIES, UNIVERSES as BASE_UNIVERSES, ERAS, STATUS_LABELS
 from histoire_secrete import EXTRA_STORIES, EXTRA_UNIVERSES, DOSSIERS
 from panoramas import ERA_PANORAMAS
+from origines import ORIGINES
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -283,6 +284,30 @@ async def get_panorama(era_id: str):
         raise HTTPException(404, "Époque introuvable")
     linked = [summarize_story(STORY_INDEX[i]) for i in p.get("linked_story_ids", []) if i in STORY_INDEX]
     return {**p, "linked_stories": linked}
+
+
+# ============ À L'ORIGINE DE… ============
+@api_router.get("/origines")
+async def list_origines():
+    return [
+        {
+            "id": o["id"],
+            "symbol": o["symbol"],
+            "hook": o["hook"],
+            "one_liner": o["one_liner"],
+            "hero_image": o["hero_image"],
+            "tags": o.get("tags", [])
+        }
+        for o in ORIGINES
+    ]
+
+
+@api_router.get("/origines/{origine_id}")
+async def get_origine(origine_id: str):
+    for o in ORIGINES:
+        if o["id"] == origine_id:
+            return o
+    raise HTTPException(404, "Origine introuvable")
 
 
 # ============ AI ============

@@ -18,3 +18,5 @@ export const fetchQuizPool = (limit = 6) => api.get("/stories/quiz", { params: {
 export const fetchDossiers = (universeId) => api.get(`/dossiers/${universeId}`).then(r => r.data);
 export const fetchPanoramas = () => api.get("/panoramas").then(r => r.data);
 export const fetchPanorama = (id) => api.get(`/panoramas/${id}`).then(r => r.data);
+export const fetchOrigines = () => api.get("/origines").then(r => r.data);
+export const fetchOrigine = (id) => api.get(`/origines/${id}`).then(r => r.data);

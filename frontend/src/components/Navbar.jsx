@@ -1,11 +1,12 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { BookOpenText, Compass, Map as MapIcon, Sparkles, HelpCircle, Bookmark, Search, Hourglass } from "lucide-react";
+import { BookOpenText, Compass, Map as MapIcon, Sparkles, HelpCircle, Bookmark, Search, Hourglass, Sparkle } from "lucide-react";
 import { useState } from "react";
 
 const links = [
   { to: "/voyage", label: "Voyage", icon: Hourglass },
   { to: "/frise", label: "Frise", icon: Compass },
   { to: "/carte", label: "Carte", icon: MapIcon },
+  { to: "/origine", label: "À l'origine", icon: Sparkle },
   { to: "/etrange", label: "Étrange", icon: Sparkles },
   { to: "/quiz", label: "Vrai ou légende ?", icon: HelpCircle },
 ];

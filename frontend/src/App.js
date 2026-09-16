@@ -15,6 +15,8 @@ import FavoritesPage from "@/pages/FavoritesPage";
 import SearchPage from "@/pages/SearchPage";
 import VoyagePage from "@/pages/VoyagePage";
 import VoyageEraPage from "@/pages/VoyageEraPage";
+import OriginesPage from "@/pages/OriginesPage";
+import OrigineDetailPage from "@/pages/OrigineDetailPage";
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
               <Route path="/recherche" element={<SearchPage />} />
               <Route path="/voyage" element={<VoyagePage />} />
               <Route path="/voyage/:eraId" element={<VoyageEraPage />} />
+              <Route path="/origine" element={<OriginesPage />} />
+              <Route path="/origine/:origineId" element={<OrigineDetailPage />} />
             </Routes>
           </main>
           <Footer />
