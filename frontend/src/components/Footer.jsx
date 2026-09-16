@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="mt-32 border-t border-copper/15 bg-[#050814] relative z-10" data-testid="footer">
       <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 grid md:grid-cols-3 gap-10">
         <div>
-          <div className="font-heading text-2xl text-parchment">La Bibliothèque Secrète</div>
+          <div className="font-heading text-2xl text-parchment">Les Chroniques de l'Étrange</div>
           <p className="mt-3 text-sm text-copper-muted leading-relaxed max-w-sm">
             Une exploration de l'histoire de la spiritualité, du mysticisme et des grandes légendes.
             Toujours distinguer le fait, la croyance, la légende et l'hypothèse.
@@ -25,7 +25,7 @@ export default function Footer() {
       </div>
       <div className="divider-copper" />
       <div className="mx-auto max-w-7xl px-6 lg:px-10 py-5 text-xs text-copper-muted font-ui flex flex-wrap justify-between gap-3">
-        <span>© La Bibliothèque Secrète</span>
+        <span>© Les Chroniques de l'Étrange</span>
         <span className="italic">« Ce que l'on sait, ce que l'on croit, ce que l'on raconte. »</span>
       </div>
     </footer>

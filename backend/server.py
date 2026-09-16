@@ -45,7 +45,7 @@ def public_story(s: dict, full: bool = False) -> dict:
 
 @api_router.get("/")
 async def root():
-    return {"app": "La Bibliothèque Secrète", "stories": len(STORIES)}
+    return {"app": "Les Chroniques de l'Étrange", "stories": len(STORIES)}
 
 
 @api_router.get("/universes")
@@ -186,7 +186,7 @@ async def tell_strange_ai(req: GenerateRequest):
     from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
 
     system = (
-        "Tu es le narrateur de « La Bibliothèque Secrète », une application francophone consacrée "
+        "Tu es le narrateur des « Chroniques de l'Étrange », une application francophone consacrée "
         "à l'histoire du mysticisme, de l'occultisme, de l'ésotérisme, des arts divinatoires et des légendes. "
         "TON : passionné, oral, vulgarisateur, sans jargon. Aucune emphase mystique gratuite. "
         "RÈGLE ABSOLUE : commence toujours par étiqueter clairement le statut de ce que tu vas raconter — "

@@ -24,8 +24,8 @@ export default function Navbar() {
         <Link to="/" className="flex items-center gap-3 group shrink-0" data-testid="logo-link">
           <BookOpenText className="w-6 h-6 text-copper group-hover:text-copper-light" strokeWidth={1.5} />
           <div className="hidden sm:block leading-tight">
-            <div className="font-heading text-xl tracking-tight text-parchment">La Bibliothèque</div>
-            <div className="overline">Secrète</div>
+            <div className="font-heading text-xl tracking-tight text-parchment">Les Chroniques</div>
+            <div className="overline">de l'Étrange</div>
           </div>
         </Link>
 

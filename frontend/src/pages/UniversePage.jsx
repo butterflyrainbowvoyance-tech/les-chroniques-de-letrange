@@ -25,7 +25,7 @@ export default function UniversePage() {
         </div>
         <div className="mx-auto max-w-7xl px-6 lg:px-10 py-20">
           <Link to="/" className="inline-flex items-center gap-2 text-sm font-ui text-copper-muted hover:text-copper mb-8">
-            <ChevronLeft className="w-4 h-4" strokeWidth={1.5} /> Bibliothèque
+            <ChevronLeft className="w-4 h-4" strokeWidth={1.5} /> Retour à l'accueil
           </Link>
           <div className="overline text-copper mb-6">{universe.story_count} récit{universe.story_count > 1 ? "s" : ""}</div>
           <h1 className="font-heading font-light text-5xl sm:text-6xl text-parchment tracking-tight max-w-4xl leading-[1.05]">

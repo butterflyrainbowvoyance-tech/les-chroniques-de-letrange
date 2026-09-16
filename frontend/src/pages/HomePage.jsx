@@ -30,9 +30,9 @@ export default function HomePage() {
           <div className="lg:col-span-8 animate-fade-up">
             <div className="overline text-copper mb-8">Une invitation</div>
             <h1 className="font-heading font-light text-5xl sm:text-6xl lg:text-7xl xl:text-8xl tracking-tight text-parchment leading-[1.05]">
-              Entrez dans la <em className="text-copper-light not-italic">bibliothèque</em>
+              Les <em className="text-copper-light not-italic">Chroniques</em>
               <br />
-              qu'on n'ouvre qu'à la nuit tombée.
+              de l'<em className="text-copper-light not-italic">Étrange</em>.
             </h1>
             <p className="mt-10 text-lg lg:text-xl text-parchment/75 max-w-2xl leading-relaxed">
               Une exploration honnête de l'histoire de la spiritualité, du mysticisme,
