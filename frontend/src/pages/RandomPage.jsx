@@ -10,10 +10,14 @@ export default function RandomPage() {
 
   const pick = useCallback(() => {
     setLoading(true);
+    fetchRandomStory(story?.id).then(setStory).catch(() => {}).finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [story?.id]);
+
+  useEffect(() => {
+    setLoading(true);
     fetchRandomStory().then(setStory).catch(() => {}).finally(() => setLoading(false));
   }, []);
-
-  useEffect(() => { pick(); }, [pick]);
 
   return (
     <div className="mx-auto max-w-4xl px-6 lg:px-10 py-16" data-testid="random-page">
@@ -47,7 +51,7 @@ export default function RandomPage() {
           <p className="mt-6 font-heading italic text-xl text-copper-light leading-relaxed">{story.excerpt}</p>
           <div className="divider-copper my-8" />
           <div className="text-sm text-parchment/70 leading-relaxed">
-            {(story.content || []).slice(0, 2).map((p, i) => (
+            {(story.content || story.sections?.[0]?.paragraphs || []).slice(0, 2).map((p, i) => (
               <p key={i} className="mb-4">{p.replace(/\*\*/g, "").replace(/\*/g, "")}</p>
             ))}
           </div>

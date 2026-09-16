@@ -9,9 +9,11 @@ import random
 import uuid
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional
 
-from stories_data import STORIES, UNIVERSES, ERAS, STATUS_LABELS
+from stories_data import STORIES as BASE_STORIES, UNIVERSES as BASE_UNIVERSES, ERAS, STATUS_LABELS
+from histoire_secrete import EXTRA_STORIES, EXTRA_UNIVERSES, DOSSIERS
+from panoramas import ERA_PANORAMAS
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -25,12 +27,12 @@ EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
-# Index by id
+STORIES = BASE_STORIES + EXTRA_STORIES
+UNIVERSES = BASE_UNIVERSES + EXTRA_UNIVERSES
 STORY_INDEX = {s["id"]: s for s in STORIES}
 
 
 def public_story(s: dict, full: bool = False) -> dict:
-    """Return a story with status metadata."""
     status_key = s.get("status", "hypothese")
     out = {
         **s,
@@ -39,32 +41,46 @@ def public_story(s: dict, full: bool = False) -> dict:
     }
     if not full:
         out.pop("content", None)
+        out.pop("sections", None)
+        out.pop("verdict", None)
         out.pop("sources", None)
     return out
 
 
+def summarize_story(s: dict) -> dict:
+    """Small representation for related-links & panorama lists."""
+    return {
+        "id": s["id"],
+        "title": s["title"],
+        "subtitle": s.get("subtitle"),
+        "universe": s["universe"],
+        "era_label": s.get("era_label"),
+        "region": s.get("region"),
+        "excerpt": s.get("excerpt"),
+        "status_key": s.get("status"),
+        "status_meta": STATUS_LABELS.get(s.get("status", "hypothese"))
+    }
+
+
 @api_router.get("/")
 async def root():
-    return {"app": "Les Chroniques de l'Étrange", "stories": len(STORIES)}
+    return {"app": "Les Chroniques de l'Étrange", "stories": len(STORIES), "universes": len(UNIVERSES)}
 
 
 @api_router.get("/universes")
 async def get_universes():
-    # Attach counts
-    out = []
-    for u in UNIVERSES:
-        count = sum(1 for s in STORIES if s["universe"] == u["id"])
-        out.append({**u, "story_count": count})
-    return out
+    return [
+        {**u, "story_count": sum(1 for s in STORIES if s["universe"] == u["id"])}
+        for u in UNIVERSES
+    ]
 
 
 @api_router.get("/eras")
 async def get_eras():
-    out = []
-    for e in ERAS:
-        count = sum(1 for s in STORIES if s.get("era") == e["id"])
-        out.append({**e, "story_count": count})
-    return out
+    return [
+        {**e, "story_count": sum(1 for s in STORIES if s.get("era") == e["id"])}
+        for e in ERAS
+    ]
 
 
 @api_router.get("/status-labels")
@@ -72,13 +88,39 @@ async def get_status_labels():
     return STATUS_LABELS
 
 
+@api_router.get("/dossiers/{universe_id}")
+async def get_dossiers(universe_id: str):
+    dossiers = DOSSIERS.get(universe_id, [])
+    return [
+        {**d, "story_count": sum(1 for s in STORIES if s.get("universe") == universe_id and s.get("dossier") == d["id"])}
+        for d in dossiers
+    ]
+
+
+@api_router.get("/regions")
+async def get_regions():
+    regions = {}
+    for s in STORIES:
+        r = s.get("region")
+        if not r:
+            continue
+        regions.setdefault(r, 0)
+        regions[r] += 1
+    return sorted(
+        [{"region": r, "story_count": c} for r, c in regions.items()],
+        key=lambda x: -x["story_count"]
+    )
+
+
 @api_router.get("/stories")
 async def list_stories(
     universe: Optional[str] = None,
     era: Optional[str] = None,
     status: Optional[str] = None,
+    region: Optional[str] = None,
+    dossier: Optional[str] = None,
     search: Optional[str] = None,
-    limit: int = 100
+    limit: int = 200
 ):
     results = STORIES
     if universe:
@@ -87,22 +129,32 @@ async def list_stories(
         results = [s for s in results if s.get("era") == era]
     if status:
         results = [s for s in results if s.get("status") == status]
+    if region:
+        results = [s for s in results if s.get("region") == region]
+    if dossier:
+        results = [s for s in results if s.get("dossier") == dossier]
     if search:
-        q = search.lower()
-        results = [
-            s for s in results
-            if q in s["title"].lower()
-            or q in s.get("subtitle", "").lower()
-            or q in s.get("excerpt", "").lower()
-            or any(q in t for t in s.get("tags", []))
-        ]
+        q = search.lower().strip()
+        def match(s):
+            hay = " ".join([
+                s.get("title", ""),
+                s.get("subtitle", ""),
+                s.get("excerpt", ""),
+                s.get("region", "") or "",
+                s.get("era_label", "") or "",
+                " ".join(s.get("tags", []) or []),
+                " ".join(p for p in (s.get("content", []) or []) if isinstance(p, str)),
+            ]).lower()
+            return q in hay
+        results = [s for s in results if match(s)]
     results = sorted(results, key=lambda s: s.get("year", 0))
     return [public_story(s, full=False) for s in results[:limit]]
 
 
 @api_router.get("/stories/random")
-async def random_story():
-    s = random.choice(STORIES)
+async def random_story(exclude: Optional[str] = None):
+    pool = [s for s in STORIES if s["id"] != exclude] if exclude else STORIES
+    s = random.choice(pool)
     return public_story(s, full=True)
 
 
@@ -143,9 +195,23 @@ async def map_points():
 
 
 @api_router.get("/stories/quiz")
-async def quiz_pool(limit: int = 5):
-    """Return a randomized list of stories for the 'Vrai, croyance ou légende ?' quiz."""
-    pool = random.sample(STORIES, k=min(limit, len(STORIES)))
+async def quiz_pool(limit: int = 6):
+    """Try to balance the pool over multiple status categories."""
+    by_status = {}
+    for s in STORIES:
+        by_status.setdefault(s.get("status", "hypothese"), []).append(s)
+    picks = []
+    keys = list(by_status.keys())
+    random.shuffle(keys)
+    while len(picks) < limit:
+        progressed = False
+        for k in keys:
+            if by_status[k] and len(picks) < limit:
+                picks.append(by_status[k].pop(random.randrange(len(by_status[k]))))
+                progressed = True
+        if not progressed:
+            break
+    random.shuffle(picks)
     return [
         {
             "id": s["id"],
@@ -157,7 +223,7 @@ async def quiz_pool(limit: int = 5):
             "status_meta": STATUS_LABELS.get(s.get("status", "hypothese")),
             "universe": s["universe"]
         }
-        for s in pool
+        for s in picks
     ]
 
 
@@ -169,7 +235,57 @@ async def get_story(story_id: str):
     return public_story(s, full=True)
 
 
-# ============ AI: Génération de récit à la demande ============
+@api_router.get("/stories/{story_id}/related")
+async def related_stories(story_id: str, limit: int = 4):
+    s = STORY_INDEX.get(story_id)
+    if not s:
+        raise HTTPException(404, "Récit introuvable")
+    tags = set(s.get("tags", []) or [])
+    universe = s.get("universe")
+    era = s.get("era")
+
+    def score(other):
+        if other["id"] == story_id:
+            return -1
+        sc = 0
+        sc += len(tags & set(other.get("tags", []) or [])) * 3
+        if other.get("universe") == universe:
+            sc += 2
+        if other.get("era") == era:
+            sc += 1
+        return sc
+
+    ranked = sorted(STORIES, key=score, reverse=True)
+    picks = [x for x in ranked if x["id"] != story_id and score(x) > 0][:limit]
+    return [summarize_story(x) for x in picks]
+
+
+# ============ VOYAGE DANS LE TEMPS ============
+@api_router.get("/panoramas")
+async def get_panoramas():
+    return [
+        {
+            "id": p["id"],
+            "label": p["label"],
+            "period": p["period"],
+            "tagline": p["tagline"],
+            "hero_image": p["hero_image"],
+            "story_count": len(p.get("linked_story_ids", []))
+        }
+        for p in ERA_PANORAMAS.values()
+    ]
+
+
+@api_router.get("/panoramas/{era_id}")
+async def get_panorama(era_id: str):
+    p = ERA_PANORAMAS.get(era_id)
+    if not p:
+        raise HTTPException(404, "Époque introuvable")
+    linked = [summarize_story(STORY_INDEX[i]) for i in p.get("linked_story_ids", []) if i in STORY_INDEX]
+    return {**p, "linked_stories": linked}
+
+
+# ============ AI ============
 class GenerateRequest(BaseModel):
     prompt: str
     universe: Optional[str] = None
@@ -177,9 +293,6 @@ class GenerateRequest(BaseModel):
 
 @api_router.post("/ai/tell-strange")
 async def tell_strange_ai(req: GenerateRequest):
-    """Generate a short, original 'strange but true' historical anecdote via Claude Sonnet 5.
-    Streams as SSE. Always uses the sober editorial rules of the app.
-    """
     if not EMERGENT_LLM_KEY:
         raise HTTPException(500, "LLM key non configurée")
 
@@ -191,10 +304,8 @@ async def tell_strange_ai(req: GenerateRequest):
         "TON : passionné, oral, vulgarisateur, sans jargon. Aucune emphase mystique gratuite. "
         "RÈGLE ABSOLUE : commence toujours par étiqueter clairement le statut de ce que tu vas raconter — "
         "« Fait historique attesté », « Tradition ou croyance », « Conte ou légende » ou « Hypothèse ». "
-        "N'invente jamais de sources précises. Ne présente pas une légende comme un fait. "
-        "Longueur : 4 à 6 paragraphes, environ 300 mots. "
-        "Termine par une ligne « Pour aller plus loin : » avec des pistes de lecture générales (auteurs, musées) "
-        "sans inventer de références précises."
+        "N'invente jamais de sources précises. Longueur : 4 à 6 paragraphes, ~300 mots. "
+        "Termine par « Pour aller plus loin : » avec des pistes générales (auteurs, musées)."
     )
 
     chat = LlmChat(
@@ -203,13 +314,12 @@ async def tell_strange_ai(req: GenerateRequest):
         system_message=system
     ).with_model("anthropic", "claude-sonnet-5")
 
-    user_prompt = req.prompt or "Raconte-moi une anecdote historique étrange et véridique, en indiquant clairement son statut."
+    user_prompt = req.prompt or "Raconte-moi une anecdote historique étrange et véridique."
 
     async def event_generator():
         try:
             async for ev in chat.stream_message(UserMessage(text=user_prompt)):
                 if isinstance(ev, TextDelta):
-                    # SSE: prefix each chunk
                     yield f"data: {ev.content}\n\n"
                 elif isinstance(ev, StreamDone):
                     yield "data: [DONE]\n\n"
@@ -235,10 +345,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 

@@ -13,6 +13,8 @@ import RandomPage from "@/pages/RandomPage";
 import QuizPage from "@/pages/QuizPage";
 import FavoritesPage from "@/pages/FavoritesPage";
 import SearchPage from "@/pages/SearchPage";
+import VoyagePage from "@/pages/VoyagePage";
+import VoyageEraPage from "@/pages/VoyageEraPage";
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
               <Route path="/quiz" element={<QuizPage />} />
               <Route path="/bibliotheque" element={<FavoritesPage />} />
               <Route path="/recherche" element={<SearchPage />} />
+              <Route path="/voyage" element={<VoyagePage />} />
+              <Route path="/voyage/:eraId" element={<VoyageEraPage />} />
             </Routes>
           </main>
           <Footer />

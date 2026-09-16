@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Sparkles, Compass, Map as MapIcon, HelpCircle } from "lucide-react";
+import { ArrowUpRight, Sparkles, Compass, Map as MapIcon, HelpCircle, Hourglass } from "lucide-react";
 import { fetchUniverses, fetchStories } from "@/lib/api";
 import StoryCard from "@/components/StoryCard";
 
@@ -43,8 +43,8 @@ export default function HomePage() {
             </p>
 
             <div className="mt-10 flex flex-wrap gap-3">
-              <Link to="/frise" data-testid="cta-timeline" className="inline-flex items-center gap-2 px-6 py-3 bg-copper text-[#050814] font-ui text-sm uppercase tracking-widest hover:bg-copper-light transition-colors duration-300">
-                Explorer par époque <ArrowUpRight className="w-4 h-4" strokeWidth={2} />
+              <Link to="/voyage" data-testid="cta-voyage" className="inline-flex items-center gap-2 px-6 py-3 bg-copper text-[#050814] font-ui text-sm uppercase tracking-widest hover:bg-copper-light transition-colors duration-300">
+                <Hourglass className="w-4 h-4" strokeWidth={2} /> Voyage dans le temps
               </Link>
               <Link to="/etrange" data-testid="cta-strange" className="inline-flex items-center gap-2 px-6 py-3 border border-copper text-copper font-ui text-sm uppercase tracking-widest hover:bg-copper/10 transition-colors duration-300">
                 <Sparkles className="w-4 h-4" strokeWidth={1.5} /> Raconte-moi quelque chose d'étrange
@@ -71,12 +71,8 @@ export default function HomePage() {
             {[0, 1].map(k => (
               <div key={k} className="marquee-group" aria-hidden={k === 1}>
                 {[
-                  "Arts divinatoires",
-                  "Occultisme",
-                  "Mysticisme",
-                  "Pierres & Couronnes",
-                  "Personnages",
-                  "Contes & Légendes",
+                  "Arts divinatoires", "Occultisme", "Mysticisme", "Pierres & Couronnes",
+                  "Personnages", "Contes & Légendes", "Histoire secrète",
                 ].map((label, i) => (
                   <span key={`${k}-${i}`} className="marquee-item">
                     <span>{label}</span>
@@ -93,7 +89,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-6 lg:px-10 py-24" data-testid="universes-section">
         <div className="mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
-            <div className="overline mb-4">Sept univers</div>
+            <div className="overline mb-4">Les grands univers</div>
             <h2 className="font-heading text-4xl sm:text-5xl text-parchment tracking-tight">
               Choisissez la porte que vous ouvrez ce soir.
             </h2>
@@ -104,15 +100,15 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
           {universes.map((u, i) => (
             <Link
               key={u.id}
               to={`/univers/${u.id}`}
               data-testid={`universe-card-${u.id}`}
               className={`group relative border border-copper/25 bg-[#0F1528]/70 hover-lift copper-frame p-8 overflow-hidden min-h-[280px] flex flex-col justify-end ${
-                i === 0 ? "sm:col-span-2 lg:row-span-2 min-h-[400px]" : ""
-              } ${i === 3 ? "lg:col-span-2" : ""}`}
+                i === 0 ? "sm:col-span-2 lg:row-span-2 min-h-[420px]" : ""
+              }`}
             >
               {u.image && (
                 <div className="absolute inset-0 -z-10">
@@ -136,7 +132,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FEATURED STORIES */}
+      {/* FEATURED */}
       <section className="mx-auto max-w-7xl px-6 lg:px-10 pb-24" data-testid="featured-section">
         <div className="mb-10 flex items-end justify-between gap-6">
           <div>

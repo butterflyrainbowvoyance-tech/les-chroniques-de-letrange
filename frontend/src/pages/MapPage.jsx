@@ -1,24 +1,29 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
-import { fetchMapPoints } from "@/lib/api";
+import { fetchMapPoints, fetchRegions } from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
 
 export default function MapPage() {
   const [points, setPoints] = useState([]);
+  const [regions, setRegions] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [activeRegion, setActiveRegion] = useState(null);
 
   useEffect(() => {
     fetchMapPoints().then(setPoints).catch(() => {});
+    fetchRegions().then(setRegions).catch(() => setRegions([]));
   }, []);
 
-  // Project lat/lng to a stylized 2D canvas (world equirectangular)
-  const projected = useMemo(() => points.map(p => {
+  const filteredPoints = useMemo(
+    () => activeRegion ? points.filter(p => p.region === activeRegion) : points,
+    [points, activeRegion]
+  );
+
+  const projected = useMemo(() => filteredPoints.map(p => {
     const [lat, lng] = p.coords || [0, 0];
-    const x = ((lng + 180) / 360) * 100;
-    const y = ((90 - lat) / 180) * 100;
-    return { ...p, x, y };
-  }), [points]);
+    return { ...p, x: ((lng + 180) / 360) * 100, y: ((90 - lat) / 180) * 100 };
+  }), [filteredPoints]);
 
   return (
     <div className="mx-auto max-w-7xl px-6 lg:px-10 py-16" data-testid="map-page">
@@ -27,18 +32,27 @@ export default function MapPage() {
         Là où les histoires se sont passées, ou racontées.
       </h1>
       <p className="mt-6 max-w-2xl text-parchment/70 leading-relaxed">
-        Chaque marque est un lieu associé à un récit. Cliquez pour découvrir ce qui s'y est passé — ou ce qu'on
-        a raconté qu'il s'y était passé.
+        Chaque marque est un lieu associé à un récit. Filtrez par région ou cliquez sur un point.
       </p>
 
-      <div className="mt-12 grid lg:grid-cols-3 gap-8">
+      {regions.length > 0 && (
+        <div className="mt-10 flex flex-wrap gap-2" data-testid="region-filters">
+          <FilterChip active={activeRegion === null} onClick={() => { setActiveRegion(null); setSelected(null); }} label={`Toutes les régions · ${points.length}`} />
+          {regions.map(r => (
+            <FilterChip
+              key={r.region}
+              active={activeRegion === r.region}
+              onClick={() => { setActiveRegion(r.region); setSelected(null); }}
+              label={`${r.region} · ${r.story_count}`}
+              testId={`region-${r.region}`}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="mt-10 grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 relative aspect-[2/1] border border-copper/30 bg-[#0A0F1D] overflow-hidden copper-frame">
-          <svg
-            className="absolute inset-0 w-full h-full opacity-25"
-            viewBox="0 0 200 100"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
+          <svg className="absolute inset-0 w-full h-full opacity-25" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true">
             <defs>
               <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
                 <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#8A6D4C" strokeWidth="0.15" />
@@ -61,7 +75,7 @@ export default function MapPage() {
               style={{ left: `${p.x}%`, top: `${p.y}%` }}
               aria-label={p.title}
             >
-              <span className="block w-3 h-3 rounded-full bg-copper ring-4 ring-copper/20 group-hover:ring-copper/40 animate-flicker" />
+              <span className={`block w-3 h-3 rounded-full bg-copper ring-4 ring-copper/20 group-hover:ring-copper/40 ${selected?.id === p.id ? "ring-copper/60 scale-125" : ""} transition-transform`} />
             </button>
           ))}
         </div>
@@ -70,7 +84,7 @@ export default function MapPage() {
           {!selected && (
             <div className="text-copper-muted italic text-center py-12">
               <MapPin className="w-8 h-8 text-copper mx-auto mb-4" strokeWidth={1.2} />
-              Cliquez sur un point de la carte pour découvrir un récit.
+              Cliquez sur un point pour découvrir un récit.
             </div>
           )}
           {selected && (
@@ -83,7 +97,7 @@ export default function MapPage() {
                 </div>
               )}
               <p className="mt-5 text-sm text-parchment/70 leading-relaxed">{selected.excerpt}</p>
-              <Link to={`/recit/${selected.id}`} className="mt-6 inline-flex items-center gap-2 px-4 py-2 border border-copper text-copper font-ui text-xs uppercase tracking-widest hover:bg-copper/10">
+              <Link to={`/recit/${selected.id}`} data-testid="map-open-story" className="mt-6 inline-flex items-center gap-2 px-4 py-2 border border-copper text-copper font-ui text-xs uppercase tracking-widest hover:bg-copper/10">
                 Lire le récit
               </Link>
             </div>
@@ -91,5 +105,16 @@ export default function MapPage() {
         </aside>
       </div>
     </div>
+  );
+}
+
+function FilterChip({ active, onClick, label, testId }) {
+  return (
+    <button type="button" onClick={onClick} data-testid={testId}
+      className={`px-3 py-1.5 text-xs font-ui uppercase tracking-widest border rounded-full transition-colors ${
+        active ? "border-copper bg-copper/20 text-copper-light" : "border-copper/30 text-copper-muted hover:border-copper/60 hover:text-copper"
+      }`}>
+      {label}
+    </button>
   );
 }
