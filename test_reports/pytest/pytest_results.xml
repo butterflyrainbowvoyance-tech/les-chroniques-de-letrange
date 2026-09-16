@@ -1,1 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="13" time="8.292" timestamp="2026-09-16T19:47:32.608274+00:00" hostname="agent-env-8348937c-5852-4319-a185-aea20db2ff2b"><testcase classname="tests.backend_test" name="test_root" time="0.411" /><testcase classname="tests.backend_test" name="test_universes" time="0.156" /><testcase classname="tests.backend_test" name="test_eras" time="0.160" /><testcase classname="tests.backend_test" name="test_stories_list" time="0.224" /><testcase classname="tests.backend_test" name="test_stories_filter_universe" time="0.171" /><testcase classname="tests.backend_test" name="test_stories_search" time="0.125" /><testcase classname="tests.backend_test" name="test_stories_random" time="0.295" /><testcase classname="tests.backend_test" name="test_stories_timeline" time="0.164" /><testcase classname="tests.backend_test" name="test_stories_map" time="0.227" /><testcase classname="tests.backend_test" name="test_stories_quiz" time="0.147" /><testcase classname="tests.backend_test" name="test_story_by_id_ok" time="0.258" /><testcase classname="tests.backend_test" name="test_story_by_id_not_found" time="0.140" /><testcase classname="tests.backend_test" name="test_ai_tell_strange_sse" time="5.277" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="2" failures="0" skipped="0" tests="2" time="0.588" timestamp="2026-09-16T20:25:49.142886+00:00" hostname="agent-env-8348937c-5852-4319-a185-aea20db2ff2b"><testcase classname="" name="tests.backend_test" time="0.000"><error message="collection failure">backend/tests/backend_test.py:6: in &lt;module&gt;
+    BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen os&gt;:679: in __getitem__
+    ???
+E   KeyError: 'REACT_APP_BACKEND_URL'</error><error message="collection failure">backend/tests/backend_test.py:6: in &lt;module&gt;
+    BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen os&gt;:679: in __getitem__
+    ???
+E   KeyError: 'REACT_APP_BACKEND_URL'</error></testcase></testsuite></testsuites>
