@@ -4,6 +4,7 @@ import { Moon, ArrowUpRight, Bookmark } from "lucide-react";
 import { fetchLivreDuSoir, fetchLivreDuSoirHistory } from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
 import StoryCard from "@/components/StoryCard";
+import AudioPlayer from "@/components/AudioPlayer";
 import { useFavorites } from "@/context/FavoritesContext";
 
 function formatDate(iso) {
@@ -54,6 +55,11 @@ export default function LivreDuSoirPage() {
             <p className="mt-8 font-heading italic text-xl sm:text-2xl text-parchment/90 leading-relaxed">
               {s.excerpt}
             </p>
+
+            <div className="mt-8">
+              <AudioPlayer storyId={s.id} />
+            </div>
+
             <div className="mt-10 flex flex-wrap gap-3">
               <Link to={`/recit/${s.id}`} data-testid="livre-du-soir-open" className="inline-flex items-center gap-2 px-6 py-3 bg-copper text-[#050814] font-ui text-sm uppercase tracking-widest hover:bg-copper-light">
                 Lire la chronique <ArrowUpRight className="w-4 h-4" strokeWidth={2} />

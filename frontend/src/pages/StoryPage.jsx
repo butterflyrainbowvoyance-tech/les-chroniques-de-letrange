@@ -5,6 +5,7 @@ import LiteMarkdown from "@/components/lite-markdown";
 import { fetchStory, fetchRelated } from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
 import StoryCard from "@/components/StoryCard";
+import AudioPlayer from "@/components/AudioPlayer";
 import { useFavorites } from "@/context/FavoritesContext";
 
 const VERDICT_COLORS = {
@@ -78,7 +79,9 @@ export default function StoryPage() {
       </section>
 
       <section className="mx-auto max-w-3xl px-6 lg:px-10 pt-16">
-        <p className="font-heading text-2xl sm:text-3xl italic text-copper-light leading-relaxed">
+        <AudioPlayer storyId={story.id} />
+
+        <p className="mt-10 font-heading text-2xl sm:text-3xl italic text-copper-light leading-relaxed">
           {story.excerpt}
         </p>
 

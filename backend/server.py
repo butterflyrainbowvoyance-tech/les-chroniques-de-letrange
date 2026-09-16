@@ -15,6 +15,7 @@ from stories_data import STORIES as BASE_STORIES, UNIVERSES as BASE_UNIVERSES, E
 from histoire_secrete import EXTRA_STORIES, EXTRA_UNIVERSES, DOSSIERS
 from panoramas import ERA_PANORAMAS
 from origines import ORIGINES
+from morts_etranges import MORTS_UNIVERSE, MORTS_STORIES
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -28,8 +29,8 @@ EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
-STORIES = BASE_STORIES + EXTRA_STORIES
-UNIVERSES = BASE_UNIVERSES + EXTRA_UNIVERSES
+STORIES = BASE_STORIES + EXTRA_STORIES + MORTS_STORIES
+UNIVERSES = BASE_UNIVERSES + EXTRA_UNIVERSES + [MORTS_UNIVERSE]
 STORY_INDEX = {s["id"]: s for s in STORIES}
 
 
@@ -362,6 +363,73 @@ _GREETINGS = [
 
 def _greeting_for(d) -> str:
     return _GREETINGS[d.toordinal() % len(_GREETINGS)]
+
+
+# ============ AUDIO NARRATION (OpenAI TTS) ============
+import re
+import hashlib
+from fastapi import Response
+
+AUDIO_CACHE_DIR = ROOT_DIR / "tts_cache"
+AUDIO_CACHE_DIR.mkdir(exist_ok=True)
+
+
+def _sanitize_for_tts(text: str) -> str:
+    text = re.sub(r"https?://\S+", "", text)
+    text = re.sub(r"`{1,3}[^`]*`{1,3}", "", text)
+    text = re.sub(r"[*_#>~|]", "", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def _story_narration_text(s: dict) -> str:
+    parts = [s.get("title", "")]
+    if s.get("subtitle"):
+        parts.append(s["subtitle"] + ".")
+    if s.get("excerpt"):
+        parts.append(s["excerpt"])
+    if s.get("content"):
+        parts.extend(s["content"])
+    elif s.get("sections"):
+        for sec in s["sections"]:
+            parts.append(sec.get("title", "") + ".")
+            parts.extend(sec.get("paragraphs", []))
+    text = _sanitize_for_tts(" ".join(parts))
+    # OpenAI TTS 4096 chars per request; take an evocative excerpt
+    return text[:3800]
+
+
+@api_router.get("/audio/story/{story_id}.mp3")
+async def narrate_story(story_id: str):
+    s = STORY_INDEX.get(story_id)
+    if not s:
+        raise HTTPException(404, "Récit introuvable")
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(500, "Clé LLM absente")
+
+    text = _story_narration_text(s)
+    voice = "nova"
+    model = "tts-1-hd"
+    key = hashlib.sha256(f"{story_id}|{voice}|{model}|{text}".encode()).hexdigest()[:24]
+    cache_path = AUDIO_CACHE_DIR / f"{key}.mp3"
+
+    if not cache_path.exists():
+        from emergentintegrations.llm.openai import OpenAITextToSpeech
+        tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
+        try:
+            audio = await tts.generate_speech(
+                text=text, model=model, voice=voice, response_format="mp3", speed=0.95
+            )
+        except Exception as e:
+            logging.exception("TTS generation failed")
+            raise HTTPException(502, f"Génération audio impossible: {e}")
+        cache_path.write_bytes(audio)
+
+    return Response(
+        content=cache_path.read_bytes(),
+        media_type="audio/mpeg",
+        headers={"Cache-Control": "public, max-age=31536000"}
+    )
 
 
 # ============ AI ============
