@@ -16,6 +16,7 @@ from histoire_secrete import EXTRA_STORIES, EXTRA_UNIVERSES, DOSSIERS
 from panoramas import ERA_PANORAMAS
 from origines import ORIGINES
 from morts_etranges import MORTS_UNIVERSE, MORTS_STORIES
+from lieux_hantes import LIEUX_UNIVERSE, LIEUX_STORIES, LIEUX_DOSSIERS
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -29,8 +30,10 @@ EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
-STORIES = BASE_STORIES + EXTRA_STORIES + MORTS_STORIES
-UNIVERSES = BASE_UNIVERSES + EXTRA_UNIVERSES + [MORTS_UNIVERSE]
+STORIES = BASE_STORIES + EXTRA_STORIES + MORTS_STORIES + LIEUX_STORIES
+UNIVERSES = BASE_UNIVERSES + EXTRA_UNIVERSES + [MORTS_UNIVERSE, LIEUX_UNIVERSE]
+# Merge dossiers per universe
+DOSSIERS = {**DOSSIERS, "lieux-hantes": LIEUX_DOSSIERS}
 STORY_INDEX = {s["id"]: s for s in STORIES}
 
 
@@ -46,6 +49,7 @@ def public_story(s: dict, full: bool = False) -> dict:
         out.pop("sections", None)
         out.pop("verdict", None)
         out.pop("sources", None)
+        out.pop("specs", None)
     return out
 
 

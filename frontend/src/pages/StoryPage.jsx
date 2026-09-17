@@ -81,6 +81,23 @@ export default function StoryPage() {
       <section className="mx-auto max-w-3xl px-6 lg:px-10 pt-16">
         <AudioPlayer storyId={story.id} />
 
+        {story.specs && story.specs.length > 0 && (
+          <div className="mt-10 border border-copper/30 bg-[#050814] copper-frame p-6" data-testid="specs-block">
+            <div className="flex items-center justify-between mb-4">
+              <div className="overline">Fiche technique</div>
+              {story.place_type && <span className="text-xs font-ui uppercase tracking-widest text-copper">{story.place_type}</span>}
+            </div>
+            <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+              {story.specs.map((sp, i) => (
+                <div key={i} className="grid grid-cols-[110px_1fr] gap-3 items-baseline">
+                  <dt className="text-[0.65rem] font-ui uppercase tracking-widest text-copper-muted">{sp.label}</dt>
+                  <dd className="text-sm text-parchment/85 leading-snug">{sp.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
+
         <p className="mt-10 font-heading text-2xl sm:text-3xl italic text-copper-light leading-relaxed">
           {story.excerpt}
         </p>

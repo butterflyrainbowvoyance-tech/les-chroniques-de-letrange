@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { fetchStories, fetchUniverses, fetchDossiers } from "@/lib/api";
 import StoryCard from "@/components/StoryCard";
+import ParchmentMap from "@/components/ParchmentMap";
 
 export default function UniversePage() {
   const { universeId } = useParams();
@@ -43,7 +44,7 @@ export default function UniversePage() {
 
       {hasDossiers && (
         <section className="mx-auto max-w-7xl px-6 lg:px-10 pt-10" data-testid="dossier-filters">
-          <div className="overline mb-4">Les dossiers</div>
+          <div className="overline mb-4">{universeId === "lieux-hantes" ? "Filtre géographique" : "Les dossiers"}</div>
           <div className="flex flex-wrap gap-2">
             <FilterChip active={activeDossier === null} onClick={() => setActiveDossier(null)} label={`Tous · ${stories.length}`} />
             {dossiers.map(d => (
@@ -56,6 +57,15 @@ export default function UniversePage() {
               />
             ))}
           </div>
+        </section>
+      )}
+
+      {universeId === "lieux-hantes" && (
+        <section className="mx-auto max-w-7xl px-6 lg:px-10 pt-10" data-testid="lieux-map-section">
+          <ParchmentMap dossierFilter={activeDossier} />
+          <p className="mt-3 text-xs italic text-copper-muted text-center">
+            Survolez ou cliquez sur un point pour ouvrir la fiche technique du lieu.
+          </p>
         </section>
       )}
 
