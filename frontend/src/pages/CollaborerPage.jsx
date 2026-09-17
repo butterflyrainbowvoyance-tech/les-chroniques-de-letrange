@@ -41,6 +41,12 @@ export default function CollaborerPage() {
         une preuve. Faits historiques, témoignages, croyances, traditions, légendes et hypothèses
         restent toujours distingués.
       </p>
+      <p className="mt-4 text-sm text-parchment/70 max-w-2xl">
+        Vous préférez écrire directement ?{" "}
+        <a href="mailto:ooleschroniquesdeletrangeoo@gmail.com" className="text-copper hover:text-copper-light break-all" data-testid="collab-email-link">
+          ooleschroniquesdeletrangeoo@gmail.com
+        </a>
+      </p>
 
       <div className="mt-10 flex flex-wrap gap-2" role="tablist">
         <TabButton active={tab === "collab"} onClick={() => setTab("collab")} testId="tab-collab" icon={Handshake}>Proposer une collaboration</TabButton>

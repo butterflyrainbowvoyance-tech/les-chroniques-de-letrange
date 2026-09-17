@@ -346,3 +346,133 @@ def test_lieu_brissac_detail():
     assert isinstance(data.get("sections"), list) and len(data["sections"]) > 0
     assert isinstance(data.get("sources"), list) and len(data["sources"]) > 0
     assert isinstance(data.get("tags"), list) and len(data["tags"]) > 0
+
+
+# ---------- Iteration 7: Admin + reviews + temoignages + collabs + enquetes ----------
+ADMIN_TOKEN = "chroniques-etrange-2026"
+H_OK = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
+H_BAD = {"Authorization": "Bearer wrong-token"}
+
+
+def test_admin_check_wrong_token_401():
+    r = requests.get(f"{API}/admin/check", headers=H_BAD)
+    assert r.status_code == 401
+
+
+def test_admin_check_ok():
+    r = requests.get(f"{API}/admin/check", headers=H_OK)
+    assert r.status_code == 200 and r.json().get("ok") is True
+
+
+def test_admin_no_token_401():
+    r = requests.get(f"{API}/admin/stories")
+    assert r.status_code == 401
+
+
+# ---- Reviews ----
+def test_public_reviews_only_published():
+    # POST a pending review; should NOT appear in public list
+    r = requests.post(f"{API}/reviews", json={"name": "TEST_User", "rating": 5, "comment": "TEST_review_pending"})
+    assert r.status_code == 200
+    assert r.json().get("received") is True
+    lst = requests.get(f"{API}/reviews").json()
+    assert not any("TEST_review_pending" in (d.get("comment") or "") for d in lst)
+
+
+def test_admin_reviews_moderate_approve_flow():
+    # Post
+    requests.post(f"{API}/reviews", json={"name": "TEST_Approve", "rating": 4, "comment": "TEST_review_to_approve"})
+    admin_list = requests.get(f"{API}/admin/reviews", headers=H_OK).json()
+    target = next((d for d in admin_list if d.get("comment") == "TEST_review_to_approve"), None)
+    assert target is not None
+    assert target.get("published") is False and target.get("status") == "pending"
+    # Approve
+    r = requests.patch(f"{API}/admin/reviews/{target['id']}", headers=H_OK, json={"action": "approve"})
+    assert r.status_code == 200
+    public = requests.get(f"{API}/reviews").json()
+    assert any(d["id"] == target["id"] and d.get("published") is True for d in public)
+    # cleanup
+    requests.delete(f"{API}/admin/reviews/{target['id']}", headers=H_OK)
+
+
+def test_admin_reviews_refuse_and_delete():
+    requests.post(f"{API}/reviews", json={"name": "TEST_Refuse", "rating": 3, "comment": "TEST_review_refuse"})
+    lst = requests.get(f"{API}/admin/reviews", headers=H_OK).json()
+    target = next(d for d in lst if d.get("comment") == "TEST_review_refuse")
+    r = requests.patch(f"{API}/admin/reviews/{target['id']}", headers=H_OK, json={"action": "refuse"})
+    assert r.status_code == 200
+    public = requests.get(f"{API}/reviews").json()
+    assert not any(d["id"] == target["id"] for d in public)
+    d = requests.delete(f"{API}/admin/reviews/{target['id']}", headers=H_OK)
+    assert d.status_code == 200
+
+
+# ---- Temoignages ----
+def test_temoignages_pending_then_approve():
+    r = requests.post(f"{API}/temoignages", json={"name": "TEST_T", "location": "Paris", "title": "TEST_title", "story": "TEST_story_txt"})
+    assert r.status_code == 200 and r.json().get("received") is True
+    pub = requests.get(f"{API}/temoignages").json()
+    assert not any(d.get("story") == "TEST_story_txt" for d in pub)
+    lst = requests.get(f"{API}/admin/temoignages", headers=H_OK).json()
+    tgt = next(d for d in lst if d.get("story") == "TEST_story_txt")
+    assert tgt.get("published") is False
+    requests.patch(f"{API}/admin/temoignages/{tgt['id']}", headers=H_OK, json={"action": "approve"})
+    pub2 = requests.get(f"{API}/temoignages").json()
+    assert any(d["id"] == tgt["id"] for d in pub2)
+    requests.delete(f"{API}/admin/temoignages/{tgt['id']}", headers=H_OK)
+
+
+# ---- Collaborations & Enquetes ----
+def test_collaboration_create_and_moderate():
+    r = requests.post(f"{API}/collaborations", json={
+        "name": "TEST_C", "email": "t@t.fr", "kind": "podcast",
+        "project": "TEST_proj", "message": "TEST_msg_collab"
+    })
+    assert r.status_code == 200 and r.json().get("received") is True
+    lst = requests.get(f"{API}/admin/collaborations", headers=H_OK).json()
+    tgt = next(d for d in lst if d.get("message") == "TEST_msg_collab")
+    assert tgt.get("status") == "pending"
+    for act in ["approve", "processed", "refuse"]:
+        rr = requests.patch(f"{API}/admin/collaborations/{tgt['id']}", headers=H_OK, json={"action": act})
+        assert rr.status_code == 200
+    d = requests.delete(f"{API}/admin/collaborations/{tgt['id']}", headers=H_OK)
+    assert d.status_code == 200
+
+
+def test_enquete_create_and_moderate():
+    r = requests.post(f"{API}/enquetes", json={
+        "name": "TEST_E", "email": "e@t.fr", "place_name": "TEST_place",
+        "place_location": "Bretagne", "tradition_summary": "TEST_tradition_summary"
+    })
+    assert r.status_code == 200 and r.json().get("received") is True
+    lst = requests.get(f"{API}/admin/enquetes", headers=H_OK).json()
+    tgt = next(d for d in lst if d.get("tradition_summary") == "TEST_tradition_summary")
+    rr = requests.patch(f"{API}/admin/enquetes/{tgt['id']}", headers=H_OK, json={"action": "approve"})
+    assert rr.status_code == 200
+    requests.delete(f"{API}/admin/enquetes/{tgt['id']}", headers=H_OK)
+
+
+# ---- Admin stories CRUD ----
+def test_admin_story_crud_and_appears_in_public():
+    payload = {
+        "universe": "histoire-secrete", "title": "TEST Admin Story",
+        "status": "hypothese", "year": 1900, "excerpt": "TEST excerpt",
+        "content": ["TEST paragraph 1", "TEST paragraph 2"],
+        "sources": [], "tags": ["test"]
+    }
+    r = requests.post(f"{API}/admin/stories", headers=H_OK, json=payload)
+    assert r.status_code == 200
+    sid = r.json()["id"]
+    # Appears in public list
+    lst = requests.get(f"{API}/stories").json()
+    assert any(s["id"] == sid for s in lst)
+    # Edit
+    payload2 = {**payload, "title": "TEST Admin Story Edited"}
+    r2 = requests.patch(f"{API}/admin/stories/{sid}", headers=H_OK, json=payload2)
+    assert r2.status_code == 200
+    detail = requests.get(f"{API}/stories/{sid}").json()
+    assert detail["title"] == "TEST Admin Story Edited"
+    # Delete
+    d = requests.delete(f"{API}/admin/stories/{sid}", headers=H_OK)
+    assert d.status_code == 200
+    assert requests.get(f"{API}/stories/{sid}").status_code == 404

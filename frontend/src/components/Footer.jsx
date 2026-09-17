@@ -21,6 +21,12 @@ export default function Footer() {
           <p className="text-sm text-parchment/70 leading-relaxed">
             Chaque récit indique ses sources : ouvrages, archives, musées et documents pour aller plus loin.
           </p>
+          <p className="mt-4 text-xs font-ui text-copper-muted">
+            Contact rédaction :<br />
+            <a href="mailto:ooleschroniquesdeletrangeoo@gmail.com" className="text-copper hover:text-copper-light break-all" data-testid="footer-email">
+              ooleschroniquesdeletrangeoo@gmail.com
+            </a>
+          </p>
         </div>
       </div>
       <div className="divider-copper" />
