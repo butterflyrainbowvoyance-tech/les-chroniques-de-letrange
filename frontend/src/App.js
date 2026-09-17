@@ -18,6 +18,10 @@ import VoyageEraPage from "@/pages/VoyageEraPage";
 import OriginesPage from "@/pages/OriginesPage";
 import OrigineDetailPage from "@/pages/OrigineDetailPage";
 import LivreDuSoirPage from "@/pages/LivreDuSoirPage";
+import AvisPage from "@/pages/AvisPage";
+import TemoignagesPage from "@/pages/TemoignagesPage";
+import AdminPage from "@/pages/AdminPage";
+import CollaborerPage from "@/pages/CollaborerPage";
 
 function App() {
   return (
@@ -41,6 +45,10 @@ function App() {
               <Route path="/origine" element={<OriginesPage />} />
               <Route path="/origine/:origineId" element={<OrigineDetailPage />} />
               <Route path="/livre-du-soir" element={<LivreDuSoirPage />} />
+              <Route path="/avis" element={<AvisPage />} />
+              <Route path="/temoignages" element={<TemoignagesPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/collaborer" element={<CollaborerPage />} />
             </Routes>
           </main>
           <Footer />

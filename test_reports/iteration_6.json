@@ -1,0 +1,17 @@
+{
+  "summary": "Iteration 6: Verified new 'Lieux hantés' universe (9 places: 5 France + 4 monde) end-to-end. Backend: 32/32 pytest passing (updated counts to 62 stories / 12 universes; added 6 new tests for lieux-hantes universe count, story list, dossier filters france/monde, dossiers endpoint counts, and lieu-brissac detail with 5 specs). Frontend: /univers/lieux-hantes correctly renders dossier filter row (Tous·9 / En France·5 / Dans le monde·4), lieux-map-section with parchment-map, 9 pins, 9 story cards. Clicking 'En France' reduces grid to 5 cards and parchment map remains visible and re-projects. Hover on parchment-pin-lieu-brissac produces tooltip with title. /recit/lieu-brissac shows AudioPlayer + specs-block containing exactly 5 dt/dd pairs, plus sections/sources/tags. /recit/lieu-glamis renders correctly. Regression: /voyage, /frise, /origine, /livre-du-soir, /univers/morts-etranges all return 200.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ParchmentMap pins overlap physically in the France region (Brissac/Combourg/Mortemer cluster) — Playwright hover intercepted by neighbouring pin. Real user hover still works, but consider small offset or z-index cycling for accessibility.",
+    "ParchmentMap useEffect has empty deps so it fetches only once — good; dossier filter applied via useMemo — good."
+  ],
+  "updated_files": ["/app/backend/tests/backend_test.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend catalog now has 62 stories / 12 universes. Lieux-hantes universe has 9 stories with 2 dossiers (france=5, monde=4). Each lieu story has a 'specs' array of 5 label/value pairs and a 'place_type' field. Frontend testids added: lieux-map-section, parchment-map, parchment-pin-{story_id}, specs-block, dossier-filters, dossier-{id}. To test pin hover in Playwright, use JS dispatchEvent('mouseenter') since geographic clusters overlap."
+}

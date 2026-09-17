@@ -14,8 +14,8 @@ def test_root_counts():
     r = requests.get(f"{API}/")
     assert r.status_code == 200
     data = r.json()
-    assert data.get("stories") == 53, f"expected 53 stories, got {data.get('stories')}"
-    assert data.get("universes") == 11, f"expected 11 universes, got {data.get('universes')}"
+    assert data.get("stories") == 62, f"expected 62 stories, got {data.get('stories')}"
+    assert data.get("universes") == 12, f"expected 12 universes, got {data.get('universes')}"
 
 
 def test_universes_10_and_keys():
@@ -23,7 +23,7 @@ def test_universes_10_and_keys():
     assert r.status_code == 200
     data = r.json()
     ids = [u["id"] for u in data]
-    assert len(data) == 11, f"expected 11 universes, got {len(data)}: {ids}"
+    assert len(data) == 12, f"expected 12 universes, got {len(data)}: {ids}"
     for req in ["histoire-secrete", "ils-y-croyaient", "legende-vs-archives", "morts-etranges"]:
         assert req in ids, f"missing universe {req}"
     for u in data:
@@ -284,3 +284,65 @@ def test_audio_story_mort_mozart_generates_and_caches():
 def test_audio_story_unknown_404():
     r = requests.get(f"{API}/audio/story/unknown-id-xyz.mp3")
     assert r.status_code == 404
+
+
+
+# ---------- Lieux hantés (iteration 6) ----------
+def test_universe_lieux_hantes_count_9():
+    r = requests.get(f"{API}/universes")
+    assert r.status_code == 200
+    lh = next((u for u in r.json() if u["id"] == "lieux-hantes"), None)
+    assert lh is not None, "lieux-hantes universe missing"
+    assert lh.get("story_count") == 9, f"expected 9, got {lh.get('story_count')}"
+
+
+def test_lieux_hantes_stories_list():
+    r = requests.get(f"{API}/stories", params={"universe": "lieux-hantes"})
+    assert r.status_code == 200
+    data = r.json()
+    ids = {s["id"] for s in data}
+    expected = {"lieu-brissac", "lieu-mortemer", "lieu-broceliande", "lieu-pere-lachaise",
+                "lieu-combourg", "lieu-tour-londres", "lieu-glamis", "lieu-poveglia", "lieu-aokigahara"}
+    assert expected.issubset(ids), f"missing: {expected - ids}"
+    assert len(data) == 9
+
+
+def test_lieux_hantes_dossier_france():
+    r = requests.get(f"{API}/stories", params={"universe": "lieux-hantes", "dossier": "france"})
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data) == 5, f"expected 5 france, got {len(data)}"
+    assert all(s.get("dossier") == "france" for s in data)
+
+
+def test_lieux_hantes_dossier_monde():
+    r = requests.get(f"{API}/stories", params={"universe": "lieux-hantes", "dossier": "monde"})
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data) == 4, f"expected 4 monde, got {len(data)}"
+    assert all(s.get("dossier") == "monde" for s in data)
+
+
+def test_dossiers_lieux_hantes():
+    r = requests.get(f"{API}/dossiers/lieux-hantes")
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, list) and len(data) == 2
+    by_id = {d["id"]: d for d in data}
+    assert "france" in by_id and "monde" in by_id
+    assert by_id["france"]["story_count"] == 5
+    assert by_id["monde"]["story_count"] == 4
+
+
+def test_lieu_brissac_detail():
+    r = requests.get(f"{API}/stories/lieu-brissac")
+    assert r.status_code == 200
+    data = r.json()
+    specs = data.get("specs")
+    assert isinstance(specs, list) and len(specs) == 5
+    for row in specs:
+        assert "label" in row and "value" in row
+    assert data.get("place_type")
+    assert isinstance(data.get("sections"), list) and len(data["sections"]) > 0
+    assert isinstance(data.get("sources"), list) and len(data["sources"]) > 0
+    assert isinstance(data.get("tags"), list) and len(data["tags"]) > 0

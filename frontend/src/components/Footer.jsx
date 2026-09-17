@@ -26,6 +26,11 @@ export default function Footer() {
       <div className="divider-copper" />
       <div className="mx-auto max-w-7xl px-6 lg:px-10 py-5 text-xs text-copper-muted font-ui flex flex-wrap justify-between gap-3">
         <span>© Les Chroniques de l'Étrange</span>
+        <div className="flex flex-wrap gap-4">
+          <a href="/avis" className="hover:text-copper" data-testid="footer-avis">Vos avis</a>
+          <a href="/temoignages" className="hover:text-copper" data-testid="footer-temoignages">Vos témoignages</a>
+          <a href="/collaborer" className="hover:text-copper" data-testid="footer-collaborer">Collaborer</a>
+        </div>
         <span className="italic">« Ce que l'on sait, ce que l'on croit, ce que l'on raconte. »</span>
       </div>
     </footer>

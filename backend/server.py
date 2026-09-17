@@ -26,6 +26,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+ADMIN_TOKEN = os.environ.get('ADMIN_TOKEN', 'change-me')
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -434,6 +435,364 @@ async def narrate_story(story_id: str):
         media_type="audio/mpeg",
         headers={"Cache-Control": "public, max-age=31536000"}
     )
+
+
+# ============ ADMIN + USER CONTENT ============
+from fastapi import Header, Depends
+import uuid as _uuid
+from datetime import datetime as _dt
+
+async def require_admin(authorization: Optional[str] = Header(None)):
+    token = (authorization or "").replace("Bearer ", "").strip()
+    if not token or token != ADMIN_TOKEN:
+        raise HTTPException(401, "Accès administrateur refusé")
+    return True
+
+
+def _clean_story_doc(doc: dict) -> dict:
+    doc.pop("_id", None)
+    doc["is_user_content"] = True
+    return doc
+
+
+async def _reload_user_content():
+    """Rebuild the global STORIES + STORY_INDEX with base + Mongo user stories."""
+    global STORIES, STORY_INDEX
+    # Keep only non-user-content
+    base = [s for s in STORIES if not s.get("is_user_content")]
+    user_docs = await db.user_stories.find().to_list(1000)
+    user_stories = [_clean_story_doc(d) for d in user_docs]
+    STORIES.clear()
+    STORIES.extend(base + user_stories)
+    STORY_INDEX.clear()
+    STORY_INDEX.update({s["id"]: s for s in STORIES})
+
+
+@app.on_event("startup")
+async def _on_startup():
+    try:
+        await _reload_user_content()
+    except Exception:
+        logging.exception("Failed to reload user content on startup")
+
+
+class AdminStoryIn(BaseModel):
+    universe: str
+    dossier: Optional[str] = None
+    title: str
+    subtitle: Optional[str] = ""
+    status: str = "hypothese"
+    era: Optional[str] = None
+    era_label: Optional[str] = ""
+    year: int = 0
+    region: Optional[str] = ""
+    coords: Optional[list] = None
+    hero_image: Optional[str] = ""
+    excerpt: str
+    content: list  # list of paragraphs
+    sources: Optional[list] = []
+    tags: Optional[list] = []
+
+
+@api_router.get("/admin/check")
+async def admin_check(_: bool = Depends(require_admin)):
+    return {"ok": True}
+
+
+@api_router.get("/admin/stories")
+async def admin_list_stories(_: bool = Depends(require_admin)):
+    docs = await db.user_stories.find().to_list(1000)
+    return [_clean_story_doc(d) for d in docs]
+
+
+@api_router.post("/admin/stories")
+async def admin_create_story(payload: AdminStoryIn, _: bool = Depends(require_admin)):
+    slug = "".join(c if c.isalnum() else "-" for c in payload.title.lower())[:60].strip("-")
+    doc = payload.model_dump()
+    doc["id"] = f"user-{slug}-{_uuid.uuid4().hex[:6]}"
+    doc["created_at"] = _dt.now(timezone.utc).isoformat()
+    doc["is_user_content"] = True
+    await db.user_stories.insert_one(doc.copy())
+    await _reload_user_content()
+    return public_story(STORY_INDEX[doc["id"]], full=True)
+
+
+@api_router.patch("/admin/stories/{story_id}")
+async def admin_edit_story(story_id: str, payload: AdminStoryIn, _: bool = Depends(require_admin)):
+    update = payload.model_dump(exclude_unset=True)
+    update["updated_at"] = _dt.now(timezone.utc).isoformat()
+    res = await db.user_stories.update_one({"id": story_id}, {"$set": update})
+    if res.matched_count == 0:
+        raise HTTPException(404, "Chronique introuvable (ou récit de base non modifiable)")
+    await _reload_user_content()
+    return public_story(STORY_INDEX[story_id], full=True)
+
+
+@api_router.delete("/admin/stories/{story_id}")
+async def admin_delete_story(story_id: str, _: bool = Depends(require_admin)):
+    res = await db.user_stories.delete_one({"id": story_id})
+    await _reload_user_content()
+    return {"deleted": res.deleted_count}
+
+
+# ============ AVIS (reviews) ============
+class ReviewIn(BaseModel):
+    name: str
+    rating: int  # 1..5
+    comment: str
+
+
+@api_router.get("/reviews")
+async def list_reviews(limit: int = 50):
+    docs = await db.reviews.find({"published": {"$ne": False}}).sort("created_at", -1).to_list(limit)
+    for d in docs:
+        d.pop("_id", None)
+    return docs
+
+
+@api_router.post("/reviews")
+async def create_review(payload: ReviewIn):
+    if payload.rating < 1 or payload.rating > 5:
+        raise HTTPException(400, "Note doit être entre 1 et 5")
+    if not payload.name.strip() or not payload.comment.strip():
+        raise HTTPException(400, "Nom et commentaire requis")
+    doc = {
+        "id": _uuid.uuid4().hex[:12],
+        "name": payload.name.strip()[:60],
+        "rating": payload.rating,
+        "comment": payload.comment.strip()[:1500],
+        "created_at": _dt.now(timezone.utc).isoformat(),
+        "published": False,
+        "status": "pending"
+    }
+    await db.reviews.insert_one(doc.copy())
+    doc.pop("_id", None)
+    return {"received": True, "message": "Merci — votre avis sera lu par la rédaction avant publication."}
+
+
+class ReviewModerateIn(BaseModel):
+    action: str  # approve | refuse
+    name: Optional[str] = None
+    rating: Optional[int] = None
+    comment: Optional[str] = None
+
+
+@api_router.get("/admin/reviews")
+async def admin_list_reviews(_: bool = Depends(require_admin)):
+    docs = await db.reviews.find().sort("created_at", -1).to_list(1000)
+    for d in docs:
+        d.pop("_id", None)
+    return docs
+
+
+@api_router.patch("/admin/reviews/{review_id}")
+async def admin_moderate_review(review_id: str, payload: ReviewModerateIn, _: bool = Depends(require_admin)):
+    update = {}
+    if payload.name is not None: update["name"] = payload.name.strip()[:60]
+    if payload.rating is not None: update["rating"] = max(1, min(5, payload.rating))
+    if payload.comment is not None: update["comment"] = payload.comment.strip()[:1500]
+    if payload.action == "approve":
+        update["published"] = True
+        update["status"] = "approved"
+    elif payload.action == "refuse":
+        update["published"] = False
+        update["status"] = "refused"
+    if not update:
+        raise HTTPException(400, "Aucune modification")
+    await db.reviews.update_one({"id": review_id}, {"$set": update})
+    return {"ok": True}
+
+
+@api_router.delete("/admin/reviews/{review_id}")
+async def admin_delete_review(review_id: str, _: bool = Depends(require_admin)):
+    res = await db.reviews.delete_one({"id": review_id})
+    return {"deleted": res.deleted_count}
+
+
+@api_router.get("/reviews/summary")
+async def reviews_summary():
+    docs = await db.reviews.find({"published": {"$ne": False}}).to_list(10000)
+    if not docs:
+        return {"count": 0, "average": 0}
+    avg = sum(d["rating"] for d in docs) / len(docs)
+    return {"count": len(docs), "average": round(avg, 2)}
+
+
+# ============ TÉMOIGNAGES ============
+class TestimonyIn(BaseModel):
+    name: str
+    location: Optional[str] = ""
+    title: str
+    story: str
+
+
+@api_router.get("/temoignages")
+async def list_temoignages(limit: int = 50):
+    docs = await db.temoignages.find({"published": {"$ne": False}}).sort("created_at", -1).to_list(limit)
+    for d in docs:
+        d.pop("_id", None)
+    return docs
+
+
+@api_router.post("/temoignages")
+async def create_temoignage(payload: TestimonyIn):
+    if not payload.name.strip() or not payload.title.strip() or not payload.story.strip():
+        raise HTTPException(400, "Nom, titre et récit requis")
+    doc = {
+        "id": _uuid.uuid4().hex[:12],
+        "name": payload.name.strip()[:60],
+        "location": (payload.location or "").strip()[:120],
+        "title": payload.title.strip()[:120],
+        "story": payload.story.strip()[:5000],
+        "created_at": _dt.now(timezone.utc).isoformat(),
+        "published": False,
+        "status": "pending"
+    }
+    await db.temoignages.insert_one(doc.copy())
+    doc.pop("_id", None)
+    return {"received": True, "message": "Merci — votre témoignage sera lu par la rédaction avant publication."}
+
+
+class TemoignageModerateIn(BaseModel):
+    action: str
+    name: Optional[str] = None
+    location: Optional[str] = None
+    title: Optional[str] = None
+    story: Optional[str] = None
+
+
+@api_router.get("/admin/temoignages")
+async def admin_list_temoignages(_: bool = Depends(require_admin)):
+    docs = await db.temoignages.find().sort("created_at", -1).to_list(1000)
+    for d in docs:
+        d.pop("_id", None)
+    return docs
+
+
+@api_router.patch("/admin/temoignages/{temoignage_id}")
+async def admin_moderate_temoignage(temoignage_id: str, payload: TemoignageModerateIn, _: bool = Depends(require_admin)):
+    update = {}
+    for f in ("name", "location", "title", "story"):
+        v = getattr(payload, f)
+        if v is not None: update[f] = v.strip()
+    if payload.action == "approve":
+        update["published"] = True
+        update["status"] = "approved"
+    elif payload.action == "refuse":
+        update["published"] = False
+        update["status"] = "refused"
+    if not update:
+        raise HTTPException(400, "Aucune modification")
+    await db.temoignages.update_one({"id": temoignage_id}, {"$set": update})
+    return {"ok": True}
+
+
+@api_router.delete("/admin/temoignages/{temoignage_id}")
+async def admin_delete_temoignage(temoignage_id: str, _: bool = Depends(require_admin)):
+    res = await db.temoignages.delete_one({"id": temoignage_id})
+    return {"deleted": res.deleted_count}
+
+
+# ============ COLLABORATIONS & ENQUÊTES ============
+class CollaborationIn(BaseModel):
+    name: str
+    email: str
+    kind: str  # podcast, video, interview, conference, enquete, visite, recherche, contenu, autre
+    project: str
+    links: Optional[str] = ""
+    message: str
+
+
+class EnqueteIn(BaseModel):
+    name: str
+    email: str
+    role: Optional[str] = ""  # propriétaire, association, particulier…
+    place_name: str
+    place_location: str
+    tradition_summary: str
+    message: Optional[str] = ""
+
+
+@api_router.post("/collaborations")
+async def create_collab(payload: CollaborationIn):
+    if not payload.name.strip() or not payload.email.strip() or not payload.project.strip() or not payload.message.strip():
+        raise HTTPException(400, "Champs obligatoires manquants")
+    doc = {
+        "id": _uuid.uuid4().hex[:12],
+        **{k: (getattr(payload, k) or "").strip() for k in ["name","email","kind","project","links","message"]},
+        "created_at": _dt.now(timezone.utc).isoformat(),
+        "status": "pending",
+        "published": False
+    }
+    await db.collaborations.insert_one(doc.copy())
+    return {"received": True, "message": "Merci — votre proposition arrive dans notre espace de rédaction."}
+
+
+@api_router.post("/enquetes")
+async def create_enquete(payload: EnqueteIn):
+    if not payload.name.strip() or not payload.email.strip() or not payload.place_name.strip() or not payload.tradition_summary.strip():
+        raise HTTPException(400, "Champs obligatoires manquants")
+    doc = {
+        "id": _uuid.uuid4().hex[:12],
+        **{k: (getattr(payload, k) or "").strip() for k in ["name","email","role","place_name","place_location","tradition_summary","message"]},
+        "created_at": _dt.now(timezone.utc).isoformat(),
+        "status": "pending",
+        "published": False
+    }
+    await db.enquetes.insert_one(doc.copy())
+    return {"received": True, "message": "Merci — votre proposition arrive dans notre espace de rédaction."}
+
+
+@api_router.get("/admin/collaborations")
+async def admin_list_collabs(_: bool = Depends(require_admin)):
+    docs = await db.collaborations.find().sort("created_at", -1).to_list(1000)
+    for d in docs: d.pop("_id", None)
+    return docs
+
+
+@api_router.patch("/admin/collaborations/{cid}")
+async def admin_mod_collab(cid: str, payload: dict, _: bool = Depends(require_admin)):
+    update = {}
+    action = payload.get("action")
+    if action == "approve": update["status"] = "approved"
+    elif action == "refuse": update["status"] = "refused"
+    elif action == "processed": update["status"] = "processed"
+    for k in ["name","email","kind","project","links","message"]:
+        if k in payload and payload[k] is not None: update[k] = str(payload[k]).strip()
+    await db.collaborations.update_one({"id": cid}, {"$set": update})
+    return {"ok": True}
+
+
+@api_router.delete("/admin/collaborations/{cid}")
+async def admin_del_collab(cid: str, _: bool = Depends(require_admin)):
+    await db.collaborations.delete_one({"id": cid})
+    return {"ok": True}
+
+
+@api_router.get("/admin/enquetes")
+async def admin_list_enquetes(_: bool = Depends(require_admin)):
+    docs = await db.enquetes.find().sort("created_at", -1).to_list(1000)
+    for d in docs: d.pop("_id", None)
+    return docs
+
+
+@api_router.patch("/admin/enquetes/{eid}")
+async def admin_mod_enquete(eid: str, payload: dict, _: bool = Depends(require_admin)):
+    update = {}
+    action = payload.get("action")
+    if action == "approve": update["status"] = "approved"
+    elif action == "refuse": update["status"] = "refused"
+    elif action == "processed": update["status"] = "processed"
+    for k in ["name","email","role","place_name","place_location","tradition_summary","message"]:
+        if k in payload and payload[k] is not None: update[k] = str(payload[k]).strip()
+    await db.enquetes.update_one({"id": eid}, {"$set": update})
+    return {"ok": True}
+
+
+@api_router.delete("/admin/enquetes/{eid}")
+async def admin_del_enquete(eid: str, _: bool = Depends(require_admin)):
+    await db.enquetes.delete_one({"id": eid})
+    return {"ok": True}
 
 
 # ============ AI ============
