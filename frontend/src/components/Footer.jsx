@@ -23,8 +23,8 @@ export default function Footer() {
           </p>
           <p className="mt-4 text-xs font-ui text-copper-muted">
             Contact rédaction :<br />
-            <a href="mailto:ooleschroniquesdeletrangeoo@gmail.com" className="text-copper hover:text-copper-light break-all" data-testid="footer-email">
-              ooleschroniquesdeletrangeoo@gmail.com
+            <a href="mailto:leschroniquesdeletrangecontact@gmail.com" className="text-copper hover:text-copper-light break-all" data-testid="footer-email">
+              leschroniquesdeletrangecontact@gmail.com
             </a>
           </p>
         </div>

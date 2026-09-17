@@ -43,8 +43,8 @@ export default function CollaborerPage() {
       </p>
       <p className="mt-4 text-sm text-parchment/70 max-w-2xl">
         Vous préférez écrire directement ?{" "}
-        <a href="mailto:ooleschroniquesdeletrangeoo@gmail.com" className="text-copper hover:text-copper-light break-all" data-testid="collab-email-link">
-          ooleschroniquesdeletrangeoo@gmail.com
+        <a href="mailto:leschroniquesdeletrangecontact@gmail.com" className="text-copper hover:text-copper-light break-all" data-testid="collab-email-link">
+          leschroniquesdeletrangecontact@gmail.com
         </a>
       </p>
 

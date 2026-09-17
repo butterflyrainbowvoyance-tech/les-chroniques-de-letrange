@@ -24,6 +24,9 @@ Application immersive documentant l'histoire de la spiritualité, du mysticisme,
 - Ruban catégories défilant, hero rewritten
 - Tests : 17/17 backend + 11/11 frontend ✅
 
+## Iteration 8 (Feb 17, 2026)
+- Contact officiel mis à jour dans le footer et la page Collaborer : `leschroniquesdeletrangecontact@gmail.com` (remplacement de l'ancienne adresse)
+
 ## Prochaine phase (backlog)
 - P1: Section "À l'origine de..." (racines historiques d'un symbole donné)
 - P1: Audio narrateur ElevenLabs pour lire un récit
