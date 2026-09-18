@@ -1,4 +1,4 @@
-{
+F{
 "short_name": "Chroniques",
 "name": "Les Chroniques de l'Étrange",
 "start_url": "/",
@@ -7,7 +7,7 @@
 "theme_color": "#111111",
 "icons": [
 {
-"src": "/ICON_ETRANGE.png",
+"src": "/29F3BA79-0023-41A5-A4B3-0E6806F6D79A.png"
 "sizes": any
 "type": "image/png"
 }
