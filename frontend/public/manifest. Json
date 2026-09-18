@@ -5,5 +5,10 @@
 "display": "standalone",
 "background_color": "#111111",
 "theme_color": "#111111",
-"icons": []
+"icons": [
+{
+"src": "/a_dark_moody_elegant_website_mobile_splash_hero.png",
+"sizes": "1536x1024",
+"type": "image/png"
+}
 }
