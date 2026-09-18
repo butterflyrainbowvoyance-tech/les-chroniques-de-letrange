@@ -80,11 +80,17 @@ export default function StoryPage() {
 
       <section className="mx-auto max-w-3xl px-6 lg:px-10 pt-16">
         <AudioPlayer
-storyId={histoire.identifiant}
+storyId={story.id}
 text={
-histoire.sections?.length
-? histoire.sections.flatMap(section => section.paragraphes || []).join(" ")
-: (histoire.contenu || []).join(" ")
+story.sections?.length
+? story.sections
+.flatMap(section =>
+Array.isArray(section.paragraphs) ? section.paragraphs : []
+)
+.join(" ")
+: Array.isArray(story.content)
+? story.content.join(" ")
+: (story.content || "")
 }
 />
 
