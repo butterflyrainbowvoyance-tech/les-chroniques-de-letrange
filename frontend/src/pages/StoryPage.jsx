@@ -79,7 +79,14 @@ export default function StoryPage() {
       </section>
 
       <section className="mx-auto max-w-3xl px-6 lg:px-10 pt-16">
-        <AudioPlayer storyId={story.id} />
+        <AudioPlayer
+storyId={histoire.identifiant}
+text={
+histoire.sections?.length
+? histoire.sections.flatMap(section => section.paragraphes || []).join(" ")
+: (histoire.contenu || []).join(" ")
+}
+/>
 
         {story.specs && story.specs.length > 0 && (
           <div className="mt-10 border border-copper/30 bg-[#050814] copper-frame p-6" data-testid="specs-block">
