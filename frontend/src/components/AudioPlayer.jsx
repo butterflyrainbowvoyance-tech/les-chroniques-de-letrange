@@ -1,82 +1,164 @@
-import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Loader2, AudioLines } from "lucide-react";
-import { API } from "@/lib/api";
+import { useEffect, useRef, useState } from "react";
+import { Play, Pause, Square, AudioLines } from "lucide-react";
 
-export default function AudioPlayer({ storyId, compact = false }) {
-  const [state, setState] = useState("idle"); // idle | loading | playing | paused | error
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const audioRef = useRef(null);
-  const src = `${API}/audio/story/${storyId}.mp3`;
+export default function AudioPlayer({ storyId, text = "", compact = false }) {
+const [status, setStatus] = useState("idle");
+const chunksRef = useRef([]);
+const indexRef = useRef(0);
 
-  useEffect(() => {
-    // reset on story change
-    setState("idle"); setProgress(0); setDuration(0);
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-    return () => { if (audioRef.current) audioRef.current.pause(); };
-  }, [storyId]);
+useEffect(() => {
+return () => {
+window.speechSynthesis?.cancel();
+};
+}, [storyId]);
 
-  const toggle = async () => {
-    if (state === "playing") { audioRef.current.pause(); setState("paused"); return; }
-    if (state === "paused") { audioRef.current.play(); setState("playing"); return; }
-    setState("loading");
-    try {
-      const a = new Audio(src);
-      audioRef.current = a;
-      a.addEventListener("loadedmetadata", () => setDuration(a.duration || 0));
-      a.addEventListener("timeupdate", () => setProgress(a.currentTime || 0));
-      a.addEventListener("ended", () => { setState("idle"); setProgress(0); });
-      a.addEventListener("error", () => setState("error"));
-      await a.play();
-      setState("playing");
-    } catch {
-      setState("error");
-    }
-  };
+const cleanText = (value) =>
+String(value || "")
+.replace(/[#*_>`~[\]()]/g, " ")
+.replace(/\s+/g, " ")
+.trim();
 
-  const fmt = (t) => {
-    if (!t || isNaN(t)) return "0:00";
-    const m = Math.floor(t / 60);
-    const s = Math.floor(t % 60);
-    return `${m}:${s.toString().padStart(2, "0")}`;
-  };
+const makeChunks = (value) => {
+const cleaned = cleanText(value);
+if (!cleaned) return [];
 
-  const isBusy = state === "loading";
-  const isOn = state === "playing";
-  const pct = duration ? (progress / duration) * 100 : 0;
+const sentences =
+cleaned.match(/[^.!?…]+[.!?…]+|[^.!?…]+$/g) || [cleaned];
 
-  return (
-    <div
-      data-testid={`audio-player-${storyId}`}
-      className={`border border-copper/30 bg-[#050814]/60 copper-frame ${compact ? "p-3" : "p-5"} flex items-center gap-4`}
-    >
-      <button
-        type="button"
-        onClick={toggle}
-        disabled={isBusy}
-        data-testid="audio-toggle"
-        aria-label={isOn ? "Pause" : "Écouter"}
-        className={`shrink-0 flex items-center justify-center rounded-full border-2 border-copper transition-colors ${
-          isOn ? "bg-copper text-[#050814]" : "bg-transparent text-copper hover:bg-copper/10"
-        } ${compact ? "w-10 h-10" : "w-12 h-12"}`}
-      >
-        {isBusy ? <Loader2 className="w-5 h-5 animate-spin" strokeWidth={1.5} />
-         : isOn ? <Pause className="w-5 h-5" strokeWidth={1.5} />
-         : <Play className="w-5 h-5 ml-0.5" strokeWidth={1.5} />}
-      </button>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 text-copper font-ui text-[0.7rem] uppercase tracking-[0.2em] mb-1.5">
-          <AudioLines className="w-3.5 h-3.5" strokeWidth={1.5} />
-          {state === "error" ? "Audio indisponible" : "Écouter cette chronique"}
-        </div>
-        <div className="relative h-1 bg-copper/15 rounded-full overflow-hidden">
-          <div className="absolute inset-y-0 left-0 bg-copper transition-[width] duration-300" style={{ width: `${pct}%` }} />
-        </div>
-        <div className="mt-1 flex justify-between text-[0.65rem] font-ui text-copper-muted tabular-nums">
-          <span>{fmt(progress)}</span>
-          <span>{duration ? fmt(duration) : (isBusy ? "génération en cours…" : "voix : Nova · qualité HD")}</span>
-        </div>
-      </div>
-    </div>
-  );
+const chunks = [];
+let current = "";
+
+sentences.forEach((sentence) => {
+if ((current + sentence).length > 220 && current) {
+chunks.push(current.trim());
+current = sentence;
+} else {
+current += " " + sentence;
+}
+});
+
+if (current.trim()) chunks.push(current.trim());
+return chunks;
+};
+
+const getFrenchVoice = () => {
+const voices = window.speechSynthesis.getVoices();
+const french = voices.filter((voice) =>
+voice.lang?.toLowerCase().startsWith("fr")
+);
+
+return (
+french.find((voice) =>
+/thomas|audrey|amelie|amélie|marie|google/i.test(voice.name)
+) ||
+french[0] ||
+null
+);
+};
+
+const speakNext = () => {
+if (indexRef.current >= chunksRef.current.length) {
+setStatus("idle");
+indexRef.current = 0;
+return;
+}
+
+const utterance = new SpeechSynthesisUtterance(
+chunksRef.current[indexRef.current]
+);
+
+utterance.lang = "fr-FR";
+utterance.rate = 0.95;
+utterance.pitch = 1;
+
+const voice = getFrenchVoice();
+if (voice) utterance.voice = voice;
+
+utterance.onend = () => {
+indexRef.current += 1;
+speakNext();
+};
+
+utterance.onerror = () => {
+setStatus("idle");
+};
+
+window.speechSynthesis.speak(utterance);
+};
+
+const toggle = () => {
+if (!("speechSynthesis" in window)) return;
+
+if (status === "playing") {
+window.speechSynthesis.pause();
+setStatus("paused");
+return;
+}
+
+if (status === "paused") {
+window.speechSynthesis.resume();
+setStatus("playing");
+return;
+}
+
+chunksRef.current = makeChunks(text);
+indexRef.current = 0;
+
+if (!chunksRef.current.length) return;
+
+window.speechSynthesis.cancel();
+setStatus("playing");
+speakNext();
+};
+
+const stop = () => {
+window.speechSynthesis?.cancel();
+indexRef.current = 0;
+setStatus("idle");
+};
+
+return (
+<div className="border border-copper/30 bg-[#050814] rounded-lg p-4">
+<div className="flex items-center gap-3">
+<button
+type="button"
+onClick={toggle}
+aria-label={status === "playing" ? "Pause" : "Écouter"}
+className={`shrink-0 flex items-center justify-center rounded-full border border-copper/40 ${
+compact ? "w-10 h-10" : "w-12 h-12"
+}`}
+>
+{status === "playing" ? (
+<Pause className="w-5 h-5" />
+) : (
+<Play className="w-5 h-5 ml-0.5" />
+)}
+</button>
+
+<div className="flex-1">
+<div className="flex items-center gap-2">
+<AudioLines className="w-4 h-4" />
+<span>
+{status === "playing"
+? "Lecture en cours…"
+: status === "paused"
+? "Lecture en pause"
+: "Écouter cette histoire"}
+</span>
+</div>
+</div>
+
+{status !== "idle" && (
+<button
+type="button"
+onClick={stop}
+aria-label="Arrêter"
+className="p-2"
+>
+<Square className="w-4 h-4" />
+</button>
+)}
+</div>
+</div>
+);
 }
