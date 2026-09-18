@@ -8,7 +8,7 @@
 "icons": [
 {
 "src": "/a_close_up_centered_stylized_app_icon_or_logo_li.png"
-"sizes": "1536x1024",
+"sizes": any
 "type": "image/png"
 }
 }
