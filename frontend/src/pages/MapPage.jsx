@@ -64,14 +64,14 @@ export default function MapPage() {
             <rect width="200" height="100" fill="url(#grid)" />
             <rect width="200" height="100" fill="url(#dots)" opacity="0.6" />
           </svg>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050814]/40 via-transparent to-[#050814]/60" />
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#050814]/40 via-transparent to-[#050814]/60" />
           {projected.map(p => (
             <button
               key={p.id}
               type="button"
               onClick={() => setSelected(p)}
               data-testid={`map-pin-${p.id}`}
-              className="absolute -translate-x-1/2 -translate-y-1/2 group"
+     className="absolute z-20 w-10 h-10 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group"
               style={{ left: `${p.x}%`, top: `${p.y}%` }}
               aria-label={p.title}
             >
