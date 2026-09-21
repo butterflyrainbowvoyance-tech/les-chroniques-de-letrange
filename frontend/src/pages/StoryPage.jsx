@@ -84,7 +84,7 @@ className="w-full h-full object-cover opacity-40 scale-[1.02]"
             </button>
           </div>
        </section>
-      </section>
+      
 
       <section className="mx-auto max-w-3xl px-6 lg:px-10 pt-16">
         <AudioPlayer
