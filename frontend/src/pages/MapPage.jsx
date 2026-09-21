@@ -54,7 +54,7 @@ export default function MapPage() {
         <div className="lg:col-span-2 relative aspect-[2/1] border border-copper/30 bg-[#0A0F1D] overflow-hidden copper-frame">
        <img
   src="/Carte-Chronique.png"
-  alt="Carte ancienne des Chroniques de l'Étrange"
+  alt="Carte-Chronique"
   className="absolute inset-0 w-full h-full object-cover"
   draggable="false"
   />   
