@@ -83,6 +83,7 @@ className="w-full h-full object-cover opacity-40 scale-[1.02]"
               {isFav ? "Retirer de ma bibliothèque" : "Ajouter à ma bibliothèque"}
             </button>
           </div>
+  </div>
        </section>
       
 
