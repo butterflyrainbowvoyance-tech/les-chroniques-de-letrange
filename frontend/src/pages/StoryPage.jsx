@@ -83,10 +83,9 @@ className="w-full h-full object-cover opacity-40 scale-[1.02]"
               {isFav ? "Retirer de ma bibliothèque" : "Ajouter à ma bibliothèque"}
             </button>
           </div>
-  </div>
-       </section>
+          </div>
+         </section>
       
-
       <section className="mx-auto max-w-3xl px-6 lg:px-10 pt-16">
         <AudioPlayer
 storyId={story.id}
