@@ -40,10 +40,16 @@ export default function StoryPage() {
   return (
     <article className="pb-32" data-testid={`story-page-${story.id}`}>
 <div className="relative z-10 mx-auto w-full max-w-5xl px-6 lg:px-10 py-20 lg:py-28">
-        <div className="absolute inset-0 -z-10">
-        <div  className="w-full h-full object-cover opacity-40 scale-[1.02]"
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050814]/60 via-[#050814]/90 to-[#050814]" />
-        </div>
+     <div className="absolute inset-0 -z-10">
+{story.image_hero && (
+<img
+src={story.image_hero}
+alt=""
+className="w-full h-full object-cover opacity-40 scale-[1.02]"
+/>
+)}
+<div className="absolute inset-0 bg-gradient-to-b from-[#050814]/60 via-[#050814]/90 to-[#050814]" />
+</div> iv>
 <section className="mx-auto max-w-4xl px-6 lg:px-10 pt-16 pb-10">
   <div className="rounded-2xl border border-cuivre/20 bg-[#0B1020]/70 backdrop-blur-sm p-7 lg:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
     </div>
