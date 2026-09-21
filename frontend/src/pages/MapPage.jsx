@@ -53,11 +53,11 @@ export default function MapPage() {
       <div className="mt-10 grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 relative aspect-[2/1] border border-copper/30 bg-[#0A0F1D] overflow-hidden copper-frame">
        <img
-src="/carte_ancienne_mystique_du_monde.png"
-alt="Carte ancienne des Chroniques de l'Étrange"
-className="absolute inset-0 w-full h-full object-cover"
-draggable="false"
-/>   
+  src="/carte_ancienne_mystique_du_monde.png"
+  alt="Carte ancienne des Chroniques de l'Étrange"
+  className="absolute inset-0 w-full h-full object-cover"
+  draggable="false"
+  />   
           
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#050814]/40 via-transparent to-[#050814]/60" />
           {projected.map(p => (
