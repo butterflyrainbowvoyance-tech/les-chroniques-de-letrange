@@ -39,7 +39,7 @@ export default function StoryPage() {
 
   return (
     <article className="pb-32" data-testid={`story-page-${story.id}`}>
-   <section className="relative overflow-hidden border-b border-cuivre/25 min-h-[560px] flex items-end"> 
+<div className="relative z-10 mx-auto w-full max-w-5xl px-6 lg:px-10 py-20 lg:py-28">
         <div className="absolute inset-0 -z-10">
         <div  className="w-full h-full object-cover opacity-40 scale-[1.02]"
           <div className="absolute inset-0 bg-gradient-to-b from-[#050814]/60 via-[#050814]/90 to-[#050814]" />
