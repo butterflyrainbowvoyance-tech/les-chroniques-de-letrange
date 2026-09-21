@@ -66,11 +66,11 @@ export default function MapPage() {
               type="button"
               onClick={() => setSelected(p)}
               data-testid={`map-pin-${p.id}`}
-     className="absolute z-20 w-10 h-10 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group"
+   className="absolute z-20 w-14 h-14 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group"
               style={{ left: `${p.x}%`, top: `${p.y}%` }}
               aria-label={p.title}
-            >
-              <span className={`block w-3 h-3 rounded-full bg-copper ring-4 ring-copper/20 group-hover:ring-copper/40 ${selected?.id === p.id ? "ring-copper/60 scale-125" : ""} transition-transform`} />
+            ><span className="block w-5 h-5 rounded-full bg-copper ring-8 ring-copper/30 shadow-[0_0_18px_rgba(198,167,106,0.85)] group-hover:scale-110 group-hover:ring-copper/50 transition duration-200" />
+
             </button>
           ))}
         </div>
