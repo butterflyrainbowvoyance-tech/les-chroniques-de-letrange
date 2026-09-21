@@ -52,18 +52,13 @@ export default function MapPage() {
 
       <div className="mt-10 grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 relative aspect-[2/1] border border-copper/30 bg-[#0A0F1D] overflow-hidden copper-frame">
-          <svg className="absolute inset-0 w-full h-full opacity-25" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true">
-            <defs>
-              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#8A6D4C" strokeWidth="0.15" />
-              </pattern>
-              <pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="0.35" fill="#C69C6D" />
-              </pattern>
-            </defs>
-            <rect width="200" height="100" fill="url(#grid)" />
-            <rect width="200" height="100" fill="url(#dots)" opacity="0.6" />
-          </svg>
+       <img
+src="/carte_ancienne_mystique_du_monde.png"
+alt="Carte ancienne des Chroniques de l'Étrange"
+className="absolute inset-0 w-full h-full object-cover"
+draggable="false"
+/>   
+          
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#050814]/40 via-transparent to-[#050814]/60" />
           {projected.map(p => (
             <button
