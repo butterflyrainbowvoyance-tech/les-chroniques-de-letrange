@@ -39,12 +39,12 @@ export default function StoryPage() {
 
   return (
     <article className="pb-32" data-testid={`story-page-${story.id}`}>
-      <section className="relative border-b border-copper/15">
+   <section className="relative overflow-hidden border-b border-cuivre/25 min-h-[560px] flex items-end"> 
         <div className="absolute inset-0 -z-10">
-          {story.hero_image && (<img src={story.hero_image} alt="" className="w-full h-full object-cover opacity-30" />)}
+          className="w-full h-full object-cover opacity-40 scale-[1.02]"
           <div className="absolute inset-0 bg-gradient-to-b from-[#050814]/60 via-[#050814]/90 to-[#050814]" />
         </div>
-        <div className="mx-auto max-w-4xl px-6 lg:px-10 py-16">
+<div className="relative z-10 mx-auto w-full max-w-5xl px-6 lg:px-10 py-20 lg:py-28"> 
           <Link to={`/univers/${story.universe}`} className="inline-flex items-center gap-2 text-sm font-ui text-copper-muted hover:text-copper mb-8">
             <ChevronLeft className="w-4 h-4" strokeWidth={1.5} /> {story.universe.replace(/-/g, " ")}
           </Link>
