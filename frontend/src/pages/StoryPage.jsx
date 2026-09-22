@@ -59,7 +59,7 @@ className="w-full h-full object-cover opacity-40 scale-[1.02]"
           </Link>
 
           {isLegendVsArchives && (
-            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 border border-copper text-copper text-xs font-ui uppercase tracking-[0.2em] rounded-full">
+         <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-copper/40 bg-[#0B1020]/75 backdrop-blur-sm text-copper text-xs font-ui uppercase tracking-[0.22em] shadow-[0_8px_30px_rgba(0,0,0,0.22)]">
               La légende contre les archives
             </div>
           )}
