@@ -71,7 +71,7 @@ className="w-full h-full object-cover opacity-40 scale-[1.02]"
 
           <StatusBadge status={story.status_key || story.status} />
 
-          <h1 className="mt-6 font-heading font-light text-5xl sm:text-6xl text-parchment tracking-tight leading-[1.05]">
+          <h1 className="mt-6 max-w-4xl font-heading font-light text-5xl sm:text-6xl lg:text-7xl text-parchment tracking-[-0.03em] leading-[0.98] drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
             {story.title}
           </h1>
           {story.subtitle && <p className="mt-4 italic text-copper-muted text-xl">{story.subtitle}</p>}
