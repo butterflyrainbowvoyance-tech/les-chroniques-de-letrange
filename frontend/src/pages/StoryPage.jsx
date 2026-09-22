@@ -40,11 +40,10 @@ export default function StoryPage() {
   return (
     <article className="pb-32" data-testid={`story-page-${story.id}`}>
 <section className="relative overflow-hidden border-b border-cuivre/25 min-h-[560px] flex items-end">
-<section className="relative overflow-hidden border-b border-cuivre/25 min-h-[560px] flex items-end">
 <div className="absolute inset-0 -z-10">
-{histoire.image_hero && (
+{story.image_hero && (
 <img
-src={histoire.image_hero}
+src={story.image_hero}
 alt=""
 className="w-full h-full object-cover opacity-40 scale-[1.02]"
 />
