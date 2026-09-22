@@ -113,7 +113,8 @@ Array.isArray(section.paragraphs) ? section.paragraphs : []
               <div className="overline">Fiche technique</div>
             <div className="text-xs font-ui uppercase tracking-[0.24em] text-copper">Fiche technique</div>
             </div>
-            <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+            <dl className="mt-5 grid sm:grid-cols-2 gap-x-8 gap-y-4">
+
               {story.specs.map((sp, i) => (
                 <div key={i} className="grid grid-cols-[110px_1fr] gap-3 items-baseline">
                   <dt className="text-[0.65rem] font-ui uppercase tracking-widest text-copper-muted">{sp.label}</dt>
