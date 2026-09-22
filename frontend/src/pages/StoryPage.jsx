@@ -80,7 +80,7 @@ className="w-full h-full object-cover opacity-40 scale-[1.02]"
 </p>
 )}
 
-          <div className="mt-8 flex flex-wrap gap-6 text-sm font-ui text-parchment/70">
+          <div className="mt-10 flex flex-wrap items-center gap-3 sm:gap-4 text-sm font-ui text-parchment/80">
             {story.era_label && (<span className="inline-flex items-center gap-2"><Calendar className="w-4 h-4 text-copper" strokeWidth={1.5} /> {story.era_label}</span>)}
             {story.region && (<span className="inline-flex items-center gap-2"><MapPin className="w-4 h-4 text-copper" strokeWidth={1.5} /> {story.region}</span>)}
             <button type="button" onClick={() => toggle(story.id)} data-testid={`fav-toggle-${story.id}`} className="inline-flex items-center gap-2 text-copper hover:text-copper-light">
