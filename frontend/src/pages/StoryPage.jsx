@@ -52,7 +52,7 @@ className="w-full h-full object-cover opacity-40 scale-[1.02]"
 <div className="absolute inset-0 bg-gradient-to-b from-[#050814]/60 via-[#050814]/90 to-[#050814]" />
 </div>
 
-<section className="mx-auto max-w-4xl px-6 lg:px-10 pt-16 pb-10">
+<div className="relative z-10 mx-auto w-full max-w-5xl px-6 lg:px-10 py-20 lg:py-28">
 
           <Link to={`/univers/${story.universe}`} className="inline-flex items-center gap-2 text-sm font-ui text-copper-muted hover:text-copper mb-8">
             <ChevronLeft className="w-4 h-4" strokeWidth={1.5} /> {story.universe.replace(/-/g, " ")}
