@@ -111,7 +111,7 @@ Array.isArray(section.paragraphs) ? section.paragraphs : []
           <div className="mt-10 border border-copper/30 bg-[#050814] copper-frame p-6" data-testid="specs-block">
     <div className="mt-10 rounded-2xl border border-copper/25 bg-[#080C18]/80 backdrop-blur-sm copper-frame p-6 sm:p-8 shadow-[0_18px_50px_rgba(0,0,0,0.22)]" data-testid="specs-block">
               <div className="overline">Fiche technique</div>
-              {story.place_type && <span className="text-xs font-ui uppercase tracking-widest text-copper">{story.place_type}</span>}
+            <div className="text-xs font-ui uppercase tracking-[0.24em] text-copper">Fiche technique</div>
             </div>
             <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
               {story.specs.map((sp, i) => (
