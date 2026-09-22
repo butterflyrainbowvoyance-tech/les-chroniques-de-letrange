@@ -129,7 +129,7 @@ Array.isArray(section.paragraphs) ? section.paragraphs : []
           {story.excerpt}
         </p>
 
-        <div className="divider-copper my-12" />
+<div className="my-14 h-px bg-gradient-to-r from-transparent via-copper/50 to-transparent opacity-80" />
 
         {/* Content: sections take priority if present */}
         {story.sections && story.sections.length > 0 ? (
