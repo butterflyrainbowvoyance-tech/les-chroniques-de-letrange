@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { BookOpenText, Compass, Map as MapIcon, Sparkles, HelpCircle, Bookmark, Search, Hourglass, Sparkle, Moon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const links = [
   { to: "/livre-du-soir", label: "Livre du soir", icon: Moon },
@@ -13,6 +13,17 @@ const links = [
 ];
 
 export default function Navbar() {
+  const header = useRef(null);
+  useEffect(() => {
+    const measure = () => document.documentElement.style.setProperty("--chroniques-header-height", `${header.current?.getBoundingClientRect().height || 148}px`);
+    const observer = new ResizeObserver(measure);
+    observer.observe(header.current);
+    measure();
+    return () => {
+      observer.disconnect();
+      document.documentElement.style.removeProperty("--chroniques-header-height");
+    };
+  }, []);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
 
@@ -22,7 +33,22 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-copper/20 backdrop-blur-xl bg-[#050814]/80" data-testid="navbar">
+    <header ref={header} className="fixed top-0 left-0 right-0 z-50 border-b border-copper/20 backdrop-blur-xl bg-[#050814]/80" data-testid="navbar">
+      <style>{`
+        .chroniques-biography-button { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:10px 24px; border:2px solid #F3D98E; border-radius:10px; background:#D4B978; color:#050814; font-size:clamp(18px,2vw,22px); font-weight:800; line-height:1.25; text-decoration:none; animation:chroniquesBiographyBlink 2.4s ease-in-out infinite; }
+        .chroniques-biography-button:hover { background:#F3D98E; }
+        .chroniques-biography-button:hover, .chroniques-biography-button:focus-visible { animation:none; }
+        .chroniques-biography-button:focus-visible { outline:3px solid #F3E9D2; outline-offset:4px; }
+        @keyframes chroniquesBiographyBlink { 0%,100% { opacity:1; box-shadow:0 0 5px rgba(212,185,120,.25); } 50% { opacity:.72; box-shadow:0 0 24px rgba(243,217,142,.8); } }
+        @media (prefers-reduced-motion:reduce) { .chroniques-biography-button { animation:none; } }
+      
+        .App > main { padding-top:var(--chroniques-header-height,148px); }
+      `}</style>
+      <div className="mx-auto max-w-7xl px-6 lg:px-10 py-2 border-b border-copper/20">
+        <a href="https://biographie.dorotheelancelot.fr/" data-testid="nav-biographie" className="chroniques-biography-button">
+          Qui suis-je ?
+        </a>
+      </div>
       <div className="mx-auto max-w-7xl px-6 lg:px-10 py-4 flex items-center gap-6">
         <Link to="/" className="flex items-center gap-3 group shrink-0" data-testid="logo-link">
           <BookOpenText className="w-6 h-6 text-copper group-hover:text-copper-light" strokeWidth={1.5} />
