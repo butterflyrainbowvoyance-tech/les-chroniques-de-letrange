@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="fr">
-    <link rel="manifest" href="/manifest.json">
     <head>
-        <link rel="apple-touch-icon" href="/29F3BA79-0023-41A5-A4B3-0E6806F6D79A.png">
+        <link rel="manifest" href="/manifest.json">
+        <link rel="apple-touch-icon" href="/Carte-Chronique.png">
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#050814" />
@@ -22,7 +22,7 @@ content="histoire, mystères, ésotérisme, légendes, croyances, paranormal, li
 <meta name="robots" content="index, follow, max-image-preview:large" />
 <meta name="author" content="Dorothée Lancelot" />
 
-<link rel="canonical" href="https://leschroniquesdeletrange.fr/" />
+<link rel="canonical" href="https://www.leschroniquesdeletrange.fr/" />
 
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="fr_FR" />
@@ -32,8 +32,8 @@ content="histoire, mystères, ésotérisme, légendes, croyances, paranormal, li
 property="og:description"
 content="Découvrez l’Histoire sous un autre angle : faits attestés, croyances, légendes, mystères et récits étranges."
 />
-<meta property="og:url" content="https://leschroniquesdeletrange.fr/" />
-<meta property="og:image" content="https://leschroniquesdeletrange.fr/Carte-Chronique.png" />
+<meta property="og:url" content="https://www.leschroniquesdeletrange.fr/" />
+<meta property="og:image" content="https://www.leschroniquesdeletrange.fr/Carte-Chronique.png" />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Les Chroniques de l’Étrange" />
@@ -52,18 +52,22 @@ content="Découvrez l’Histoire sous un autre angle : faits attestés, croyance
         work correctly both with client-side routing and a non-root public URL.
         Learn how to configure a non-root public URL by running `npm run build`.
         -->
-        <title>Les Chroniques de l'Étrange</title>
-        <meta name="description" content="Explorez l’histoire du mysticisme, de l’ésotérisme, des arts divinatoires et des grandes légendes avec Les Chroniques de l’Étrange de Dorothée Lancelot.">
-<meta property="og:description" content="Une exploration documentée de l’histoire de la spiritualité, du mysticisme, de l’occultisme, des arts divinatoires et des grandes légendes.">
-<meta property="og:image" content="https://leschroniquesdeletrange.fr/VIGNETTE.png">
-<meta property="og:url" content="https://leschroniquesdeletrange.fr">
-<meta property="og:type" content="website">
+        
+        
+
+
+
+
         <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>
         <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
-    </head>
+    <script defer src="/seo-metadata.js?v=20261012"></script></head>
     <script>
 if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('/service-worker.js');
+window.addEventListener('load', function () {
+  navigator.serviceWorker.register('/service-worker.js').catch(function (error) {
+    console.warn('Le service worker des Chroniques n’a pas pu démarrer.', error);
+  });
+});
 }
 </script>
     <body>
@@ -152,3 +156,4 @@ navigator.serviceWorker.register('/service-worker.js');
         </script>
     </body>
 </html>
+

@@ -1,0 +1,18 @@
+{
+  "short_name": "Chroniques",
+  "name": "Les Chroniques de l’Étrange",
+  "lang": "fr",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "icons": [
+    {
+      "src": "/Carte-Chronique.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
